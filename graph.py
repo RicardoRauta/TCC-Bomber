@@ -16,6 +16,11 @@ BOMB = [pygame.image.load(os.path.join("Assets/Bomb", "Bomb1.png")),
         pygame.image.load(os.path.join("Assets/Bomb", "Bomb3.png")),
         pygame.image.load(os.path.join("Assets/Bomb", "Bomb4.png"))]
 
+BOMB = [pygame.transform.scale(BOMB[0], (BLOCK_SIZE, BLOCK_SIZE)),
+        pygame.transform.scale(BOMB[1], (BLOCK_SIZE, BLOCK_SIZE)),
+        pygame.transform.scale(BOMB[2], (BLOCK_SIZE, BLOCK_SIZE)),
+        pygame.transform.scale(BOMB[3], (BLOCK_SIZE, BLOCK_SIZE))]
+
 EXPLOSION_START = [pygame.image.load(os.path.join("Assets/Explosion", "ExplosionStart1.png")),
                    pygame.image.load(os.path.join("Assets/Explosion", "ExplosionStart2.png")),
                    pygame.image.load(os.path.join("Assets/Explosion", "ExplosionStart3.png")),
@@ -25,6 +30,15 @@ EXPLOSION_START = [pygame.image.load(os.path.join("Assets/Explosion", "Explosion
                    pygame.image.load(os.path.join("Assets/Explosion", "ExplosionStart7.png")),
                    pygame.image.load(os.path.join("Assets/Explosion", "ExplosionStart8.png"))]
 
+EXPLOSION_START = [pygame.transform.scale(EXPLOSION_START[0], (BLOCK_SIZE, BLOCK_SIZE)),
+                   pygame.transform.scale(EXPLOSION_START[1], (BLOCK_SIZE, BLOCK_SIZE)),
+                   pygame.transform.scale(EXPLOSION_START[2], (BLOCK_SIZE, BLOCK_SIZE)),
+                   pygame.transform.scale(EXPLOSION_START[3], (BLOCK_SIZE, BLOCK_SIZE)),
+                   pygame.transform.scale(EXPLOSION_START[4], (BLOCK_SIZE, BLOCK_SIZE)),
+                   pygame.transform.scale(EXPLOSION_START[5], (BLOCK_SIZE, BLOCK_SIZE)),
+                   pygame.transform.scale(EXPLOSION_START[6], (BLOCK_SIZE, BLOCK_SIZE)),
+                   pygame.transform.scale(EXPLOSION_START[7], (BLOCK_SIZE, BLOCK_SIZE))]
+
 EXPLOSION_MIDDLE = [pygame.image.load(os.path.join("Assets/Explosion", "ExplosionMiddle1.png")),
                     pygame.image.load(os.path.join("Assets/Explosion", "ExplosionMiddle2.png")),
                     pygame.image.load(os.path.join("Assets/Explosion", "ExplosionMiddle3.png")),
@@ -33,6 +47,15 @@ EXPLOSION_MIDDLE = [pygame.image.load(os.path.join("Assets/Explosion", "Explosio
                     pygame.image.load(os.path.join("Assets/Explosion", "ExplosionMiddle6.png")),
                     pygame.image.load(os.path.join("Assets/Explosion", "ExplosionMiddle7.png")),
                     pygame.image.load(os.path.join("Assets/Explosion", "ExplosionMiddle8.png"))]
+
+EXPLOSION_MIDDLE = [pygame.transform.scale(EXPLOSION_MIDDLE[0], (BLOCK_SIZE, BLOCK_SIZE)),
+                    pygame.transform.scale(EXPLOSION_MIDDLE[1], (BLOCK_SIZE, BLOCK_SIZE)),
+                    pygame.transform.scale(EXPLOSION_MIDDLE[2], (BLOCK_SIZE, BLOCK_SIZE)),
+                    pygame.transform.scale(EXPLOSION_MIDDLE[3], (BLOCK_SIZE, BLOCK_SIZE)),
+                    pygame.transform.scale(EXPLOSION_MIDDLE[4], (BLOCK_SIZE, BLOCK_SIZE)),
+                    pygame.transform.scale(EXPLOSION_MIDDLE[5], (BLOCK_SIZE, BLOCK_SIZE)),
+                    pygame.transform.scale(EXPLOSION_MIDDLE[6], (BLOCK_SIZE, BLOCK_SIZE)),
+                    pygame.transform.scale(EXPLOSION_MIDDLE[7], (BLOCK_SIZE, BLOCK_SIZE))]
 
 EXPLOSION_END = [pygame.image.load(os.path.join("Assets/Explosion", "ExplosionEnd1.png")),
                  pygame.image.load(os.path.join("Assets/Explosion", "ExplosionEnd2.png")),
@@ -318,29 +341,48 @@ class PlayerGraph:
     X_POS = 0
     Y_POS = 0
     
-    def __init__(self, MOV_IMG, DEATH_IMG):
-        self.walk_up_img = MOV_IMG[0]
-        self.walk_down_img = MOV_IMG[1]
-        self.walk_left_img = MOV_IMG[2]
-        self.walk_right_img = MOV_IMG[3]
-        self.death_img = DEATH_IMG
+    def __init__(self, id):
+        if id == 0:
+            self.walk_up_img = PLAYER_WHITE_WALK_UP
+            self.walk_down_img = PLAYER_WHITE_WALK_DOWN
+            self.walk_left_img = PLAYER_WHITE_WALK_LEFT
+            self.walk_right_img = PLAYER_WHITE_WALK_RIGHT
+            self.death_img = PLAYER_WHITE_DEATH
+        elif id == 1:
+            self.walk_up_img = PLAYER_BLACK_WALK_UP
+            self.walk_down_img = PLAYER_BLACK_WALK_DOWN
+            self.walk_left_img = PLAYER_BLACK_WALK_LEFT
+            self.walk_right_img = PLAYER_BLACK_WALK_RIGHT
+            self.death_img = PLAYER_BLACK_DEATH
+        elif id == 2:
+            self.walk_up_img = PLAYER_BLUE_WALK_UP
+            self.walk_down_img = PLAYER_BLUE_WALK_DOWN
+            self.walk_left_img = PLAYER_BLUE_WALK_LEFT
+            self.walk_right_img = PLAYER_BLUE_WALK_RIGHT
+            self.death_img = PLAYER_BLUE_DEATH
+        elif id == 3:
+            self.walk_up_img = PLAYER_RED_WALK_UP
+            self.walk_down_img = PLAYER_RED_WALK_DOWN
+            self.walk_left_img = PLAYER_RED_WALK_LEFT
+            self.walk_right_img = PLAYER_RED_WALK_RIGHT
+            self.death_img = PLAYER_RED_DEATH
 
         self.is_death = False
         self.death_step = 0
 
         self.step_index = 0
-        self.image = self.walk_up_img[0]
+        self.image = self.walk_down_img[0]
         self.player_rect = self.image.get_rect()
         self.player_rect.x = self.X_POS
         self.player_rect.y = self.Y_POS
 
-    def update(self, userInput):
+    def update(self, userInput, X_POS, Y_POS):
         if self.is_death:
-            if self.death_step < 6:
+            if self.death_step < 36:
                 self.death()
             return
-
-        if self.step_index >= 4:
+        
+        if self.step_index >= 16:
             self.step_index = 0
 
         if userInput == "K_UP":
@@ -351,6 +393,12 @@ class PlayerGraph:
             self.image = self.walk_left_img
         elif userInput == "K_RIGHT":
             self.image = self.walk_right_img
+        
+        if not(self.X_POS == X_POS) or not(self.Y_POS == Y_POS):
+            self.walk()
+
+        self.X_POS = X_POS
+        self.Y_POS = Y_POS
 
     def walk(self):
         self.image = self.image[self.step_index // 4]
@@ -366,8 +414,10 @@ class PlayerGraph:
         self.player_rect.y = self.Y_POS
         self.death_step += 1
 
-    def draw(self):
-        SCREEN.blit(self.image, (self.player_rect.x, self.player_rect.y))
+    def draw(self, width, height):
+        offsetX = (SCREEN_WIDTH - BLOCK_SIZE * width) / 2
+        offsetY = (SCREEN_HEIGHT - BLOCK_SIZE * height) / 2
+        SCREEN.blit(self.image, (offsetX+self.X_POS, offsetY+self.Y_POS))
 
     def getXY(self):
         return (self.player_rect.x, self.player_rect.y)
