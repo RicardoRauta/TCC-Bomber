@@ -14,6 +14,7 @@ pygame.init()
 def playGame():
     arena = Arena(9,9)
     clock = pygame.time.Clock()
+    players = [Player(0, arena), Player(1, arena), Player(2, arena), Player(3, arena)]
     run = True
     while(run):
         for event in pygame.event.get():
@@ -22,7 +23,10 @@ def playGame():
                 exit()
                 
         if SCREEN_ON:
-            arena.drawnArena()
+            arena.drawn()
+            for player in players:
+                player.update([1,1,0,0])
+                player.drawn()
             clock.tick(60)
             pygame.display.update()
 
