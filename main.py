@@ -8,10 +8,13 @@ from sys import exit
 from game import Arena, Player
 from graph import SCREEN_ON
 
+GAME_MODE = "HUMAN_MODE"
+
 
 pygame.init()
 
 def playGame():
+    PLAYER_ID = 0
     arena = Arena(9,9)
     clock = pygame.time.Clock()
     players = [Player(0, arena), Player(1, arena), Player(2, arena), Player(3, arena)]
@@ -21,12 +24,42 @@ def playGame():
             if event.type == pygame.QUIT:
                 run = False
                 exit()
-                
+
+        input = [0,0,0,0]
+
+        if GAME_MODE == "HUMAN_MODE":
+            userInputArray = pygame.key.get_pressed()
+
+            if userInputArray[pygame.K_UP]:
+                input = [1,1,1,0]
+            elif userInputArray[pygame.K_DOWN]:
+                input = [1,1,0,0]
+            elif userInputArray[pygame.K_LEFT]:
+                input = [1,0,0,0]
+            elif userInputArray[pygame.K_RIGHT]:
+                input = [1,0,1,0]
+            elif userInputArray[pygame.K_0]:
+                PLAYER_ID = 0
+            elif userInputArray[pygame.K_1]:
+                PLAYER_ID = 1
+            elif userInputArray[pygame.K_2]:
+                PLAYER_ID = 2
+            elif userInputArray[pygame.K_3]:
+                PLAYER_ID = 3
+            if userInputArray[pygame.K_SPACE]:
+                input[3] = 1
+        
+
         if SCREEN_ON:
             arena.drawn()
+            
             for player in players:
-                player.update([1,1,0,0])
+                if player.ID == PLAYER_ID:
+                    player.update(input)
+                else:
+                    player.update([0,0,0,0])
                 player.drawn()
+           
             clock.tick(60)
             pygame.display.update()
 
@@ -51,3 +84,16 @@ def run():
 #run()
 
 playGame()
+
+
+#[['o', 'o', 'o', 'o', 'o', 'o', 'o', 'o', 'o', 'o', 'o'], 
+# ['o', '-', '-', '*', '*', '*', '*', '*', '-', '-', 'o'], 
+# ['o', '-', 'o', '*', 'o', '*', 'o', '*', 'o', '-', 'o'], 
+# ['o', '*', '*', '*', '*', '*', '*', '*', '*', '*', 'o'], 
+# ['o', '*', 'o', '*', 'o', '*', 'o', '*', 'o', '*', 'o'], 
+# ['o', '*', '*', '*', '*', '*', '*', '*', '*', '*', 'o'], 
+# ['o', '*', 'o', '*', 'o', '*', 'o', '*', 'o', '*', 'o'],
+# ['o', '*', '*', '*', '*', '*', '*', '*', '*', '*', 'o'], 
+# ['o', '-', 'o', '*', 'o', '*', 'o', '*', 'o', '-', 'o'], 
+# ['o', '-', '-', '*', '*', '*', '*', '*', '-', '-', 'o'], 
+# ['o', 'o', 'o', 'o', 'o', 'o', 'o', 'o', 'o', 'o', 'o']]
