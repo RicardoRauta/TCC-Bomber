@@ -10,6 +10,7 @@ class Player:
         self.ID = ID
         self.ARENA = ARENA
         self.BOMBS = []
+        self.speed = 1
         
         if ID == 0:
             self.X_POS = 0
@@ -24,53 +25,40 @@ class Player:
             self.X_POS = BLOCK_SIZE*ARENA.WIDTH - BLOCK_SIZE
             self.Y_POS = BLOCK_SIZE*ARENA.HEIGHT - BLOCK_SIZE
         self.graph = PlayerGraph(ID, self.X_POS, self.Y_POS)
-
+        
     def update(self, userInputs):
         # userInputs[0] - 1 (se move)  0 (fica parado) - movimento
         # userInputs[1] - 1 (vertical) 0 (horizontal)  - direção
         # userInputs[2] - 1 (positivo) 0 (negativo)    - sentido
         # userInputs[3] - 1 (bomba)    0 (nada)        - bomba
-        if userInputs[0] == 1:
-            if userInputs[1] == 1:
-                if userInputs[2] == 1:
-                    self.Y_POS -= 1
-                    if self.hasBlock():
-                        self.Y_POS += 2
-                    self.graph.update("K_UP", self.X_POS, self.Y_POS)
+        for k in range(self.speed):
+            if userInputs[0] == 1:
+                if userInputs[1] == 1:
+                    if userInputs[2] == 1:
+                        self.Y_POS -= 1
+                        if self.ARENA.hasBlockGlobal(self.X_POS, self.Y_POS):
+                            self.Y_POS += 2
+                        self.graph.update("K_UP", self.X_POS, self.Y_POS)
+                    else:
+                        self.Y_POS += 1
+                        if self.ARENA.hasBlockGlobal(self.X_POS, self.Y_POS):
+                            self.Y_POS -= 2
+                        self.graph.update("K_DOWN", self.X_POS, self.Y_POS)
                 else:
-                    self.Y_POS += 1
-                    if self.hasBlock():
-                        self.Y_POS -= 2
-                    self.graph.update("K_DOWN", self.X_POS, self.Y_POS)
-            else:
-                if userInputs[2] == 1:
-                    self.X_POS += 1
-                    if self.hasBlock():
-                        self.X_POS -= 2
-                    self.graph.update("K_RIGHT", self.X_POS, self.Y_POS)
-                else:
-                    self.X_POS -= 1
-                    if self.hasBlock():
-                        self.X_POS += 2
-                    self.graph.update("K_LEFT", self.X_POS, self.Y_POS)
+                    if userInputs[2] == 1:
+                        self.X_POS += 1
+                        if self.ARENA.hasBlockGlobal(self.X_POS, self.Y_POS):
+                            self.X_POS -= 2
+                        self.graph.update("K_RIGHT", self.X_POS, self.Y_POS)
+                    else:
+                        self.X_POS -= 1
+                        if self.ARENA.hasBlockGlobal(self.X_POS, self.Y_POS):
+                            self.X_POS += 2
+                        self.graph.update("K_LEFT", self.X_POS, self.Y_POS)
         if userInputs[3] == 1:
             self.BOMBS.append(Bomb(self))
         for bomb in self.BOMBS:
-            bomb.update()
-
-    def hasBlock(self):
-        player_left_x = (self.X_POS) // BLOCK_SIZE + 1
-        player_right_x = (self.X_POS + PLAYER_SIZE) // BLOCK_SIZE + 1
-        player_up_y = (self.Y_POS) // BLOCK_SIZE + 1
-        player_down_y = (self.Y_POS + PLAYER_SIZE) // BLOCK_SIZE + 1
-
-        if self.ID == 0:
-            print([player_left_x, player_up_y, self.ARENA.MATRIX[player_left_x][player_up_y]])
-
-        if self.ARENA.MATRIX[player_left_x][player_up_y] != '-' or self.ARENA.MATRIX[player_right_x][player_up_y] != '-' or self.ARENA.MATRIX[player_left_x][player_down_y] != '-' or self.ARENA.MATRIX[player_right_x][player_down_y] != '-':
-            return True
-        return False
-        
+            bomb.update()         
 
     def drawn(self):
         self.graph.draw(self.ARENA.WIDTH, self.ARENA.HEIGHT)
@@ -128,6 +116,19 @@ class Arena:
                 elif (i % 2 == 0) and (j % 2 == 0):
                     self.MATRIX[i][j] = 'o'
 
+     def hasBlockGlobal(self, X_POS, Y_POS):
+        left_x = (X_POS) // BLOCK_SIZE + 1
+        right_x = (X_POS + PLAYER_SIZE) // BLOCK_SIZE + 1
+        up_y = (Y_POS) // BLOCK_SIZE + 1
+        down_y = (Y_POS + PLAYER_SIZE) // BLOCK_SIZE + 1
+
+        if DEBUG:
+            print([left_x, up_y, self.MATRIX[left_x][up_y]])
+
+        if self.MATRIX[left_x][up_y] != '-' or self.MATRIX[right_x][up_y] != '-' or self.MATRIX[left_x][down_y] != '-' or self.MATRIX[right_x][down_y] != '-':
+            return True
+        return False
+                    
     def update(self):
         print("arena update")
 
