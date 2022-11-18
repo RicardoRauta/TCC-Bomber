@@ -1,6 +1,9 @@
 import numpy as np
 from graph import ArenaGraph, PlayerGraph, BombGraph, BLOCK_SIZE, PLAYER_SIZE
 
+TIME_SPEED = 1
+DEBUG = False
+
 class Player:
     X_POS = 0
     Y_POS = 0
@@ -69,15 +72,24 @@ class Bomb:
         self.X_POS = owner.X_POS // BLOCK_SIZE + 1
         self.Y_POS = owner.Y_POS // BLOCK_SIZE + 1
         self.OWNER = owner
+        self.bomb_power = owner.bomb_power
         self.step = 0
-        #TODO:Iniciar contador de tempo
+        self.time = pygame.time.get_ticks()
+        self.boom = False
 
     def update(self):
-        BombGraph.draw(self.X_POS,self.Y_POS,self.step,self.OWNER.ARENA.WIDTH, self.OWNER.ARENA.HEIGHT)
-        self.step += 1
-        if self.step > 15:
-            self.step = 0
-        #TODO:Verificar se passou o tempo para explodir 
+        if not(self.boom):
+            BombGraph.draw(self.X_POS,self.Y_POS,self.step,self.OWNER.ARENA.WIDTH, self.OWNER.ARENA.HEIGHT)
+            self.step += 1
+            if self.step > 15:
+                self.step = 0
+            if pygame.time.get_ticks() - self.time >= 3000 / TIME_SPEED:
+                self.explode()
+        else:
+            self.boom = True
+    
+    def explode(self):
+        self.boom = True
 
 
 class Arena:
