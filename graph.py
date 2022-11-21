@@ -437,7 +437,7 @@ class ArenaGraph:
                     image = BLOCK[0]
                 elif matrix[i][j] == '*':
                     image = BRICK[0]
-                elif matrix[i][j] == '-':
+                elif matrix[i][j] == '-' or matrix[i][j] == '0':
                     if matrix[i][j-1] == 'o':
                         image = GROUND_SHADOW[0]
                     else:
@@ -453,3 +453,29 @@ class BombGraph:
         bomb_y = BOMB[step//4].get_rect().y
 
         SCREEN.blit(BOMB[step//4], [(x-1) * BLOCK_SIZE + offsetX + bomb_x, (y-1) * BLOCK_SIZE + offsetY + bomb_y])
+
+    def explosion_draw(x, y, step, state, rotate, arena_width, arena_height):
+        offsetX = (SCREEN_WIDTH - BLOCK_SIZE * arena_width) / 2
+        offsetY = (SCREEN_HEIGHT - BLOCK_SIZE * arena_height) / 2
+
+        if state == "start":
+            explosion_x = EXPLOSION_START[step//8].get_rect().x
+            explosion_y = EXPLOSION_START[step//8].get_rect().y
+            SCREEN.blit(EXPLOSION_START[step//8], [(x-1) * BLOCK_SIZE + offsetX + explosion_x, (y-1) * BLOCK_SIZE + offsetY + explosion_y])
+        elif state == "middle":
+            exlosion = pygame.transform.rotate(EXPLOSION_MIDDLE[step//8], rotate)
+            explosion_x = exlosion.get_rect().x
+            explosion_y = exlosion.get_rect().y
+            SCREEN.blit(exlosion, [(x-1) * BLOCK_SIZE + offsetX + explosion_x, (y-1) * BLOCK_SIZE + offsetY + explosion_y])
+        elif state == "end":
+            exlosion = pygame.transform.rotate(EXPLOSION_END[step//8], rotate)
+            explosion_x = exlosion.get_rect().x
+            explosion_y = exlosion.get_rect().y
+            SCREEN.blit(exlosion, [(x-1) * BLOCK_SIZE + offsetX + explosion_x, (y-1) * BLOCK_SIZE + offsetY + explosion_y])
+        elif state == "block":
+            exlosion = pygame.transform.rotate(BRICK_DESTROY[step//8], rotate)
+            explosion_x = exlosion.get_rect().x
+            explosion_y = exlosion.get_rect().y
+            SCREEN.blit(exlosion, [(x-1) * BLOCK_SIZE + offsetX + explosion_x, (y-1) * BLOCK_SIZE + offsetY + explosion_y])
+
+        
