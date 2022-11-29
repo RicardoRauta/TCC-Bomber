@@ -95,11 +95,13 @@ def create_run(player_list):
         new_list = []
         for p in player_list:
             neural_list.append(p.MODE.weight)
+        i = 0
         for aux_list_1 in neural_list:
-            for aux_list_2 in neural_list:
+            for aux_list_2 in neural_list[i:len(neural_list)]:
                 if aux_list_1 == aux_list_2:
                     continue
                 new_list += crossover(aux_list_1, aux_list_2, 0.1)
+            i += 1
         print("LISTA:")
         print(len(new_list))
         #todo: second+ generation
