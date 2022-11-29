@@ -6,20 +6,45 @@ TIME_SPEED = 1
 DEBUG = False
 DEBUG_PLAYER = 0
 
+class GameMode:
+    def __init__(self):
+        pass
+
+    def get_input(self):
+        pass
+
+class HumanMode(GameMode):
+    def get_input(self):
+        input = [0,0,0,0]
+        userInputArray = pygame.key.get_pressed()
+
+        if userInputArray[pygame.K_UP]:
+            input = [1,1,1,0]
+        elif userInputArray[pygame.K_DOWN]:
+            input = [1,1,0,0]
+        elif userInputArray[pygame.K_LEFT]:
+            input = [1,0,0,0]
+        elif userInputArray[pygame.K_RIGHT]:
+            input = [1,0,1,0]
+        if userInputArray[pygame.K_SPACE]:
+            input[3] = 1
+        return input
+
 class Player:
     X_POS = 0
     Y_POS = 0
     ID = 0
 
-    def __init__(self, ID, ARENA):
+    def __init__(self, ID, ARENA, MODE):
         self.ID = ID
         self.ARENA = ARENA
         self.BOMBS = []
         self.speed = 1
-        self.max_bomb = 3
+        self.max_bomb = 1
         self.bomb_power = 1
         self.place_bomb = False
         self.death = False
+        self.MODE = MODE
 
         if ID == 0:
             self.X_POS = 0
@@ -37,11 +62,12 @@ class Player:
         self.X_ARENA_POS = self.X_POS // BLOCK_SIZE + 1
         self.Y_ARENA_POS = self.Y_POS // BLOCK_SIZE + 1
         
-    def update(self, userInputs):
-        # userInputs[0] - 1 (se move)  0 (fica parado) - movimento
-        # userInputs[1] - 1 (vertical) 0 (horizontal)  - direção
-        # userInputs[2] - 1 (positivo) 0 (negativo)    - sentido
-        # userInputs[3] - 1 (bomba)    0 (nada)        - bomba
+    def update(self):
+        inputs = self.MODE.get_input()
+        # inputs[0] - 1 (se move)  0 (fica parado) - movimento
+        # inputs[1] - 1 (vertical) 0 (horizontal)  - direção
+        # inputs[2] - 1 (positivo) 0 (negativo)    - sentido
+        # inputs[3] - 1 (bomba)    0 (nada)        - bomba
         self.X_ARENA_POS = (self.X_POS + PLAYER_SIZE/2) / BLOCK_SIZE + 1
         self.Y_ARENA_POS = (self.Y_POS + PLAYER_SIZE/2) / BLOCK_SIZE + 1
         if DEBUG and self.ID == DEBUG_PLAYER:
@@ -53,9 +79,9 @@ class Player:
 
         if not self.death:
             for k in range(self.speed):
-                if userInputs[0] == 1:
-                    if userInputs[1] == 1:
-                        if userInputs[2] == 1:
+                if inputs[0] == 1:
+                    if inputs[1] == 1:
+                        if inputs[2] == 1:
                             self.Y_POS -= 1
                             if self.place_bomb:
                                 if not self.ARENA.canGoIn(self.X_POS, self.Y_POS, PLAYER_SIZE, True):
@@ -72,7 +98,7 @@ class Player:
                                 self.Y_POS -= 2
                             self.graph.update("K_DOWN", self.X_POS, self.Y_POS)
                     else:
-                        if userInputs[2] == 1:
+                        if inputs[2] == 1:
                             self.X_POS += 1
                             if self.place_bomb:
                                 if not self.ARENA.canGoIn(self.X_POS, self.Y_POS, PLAYER_SIZE, True):
@@ -88,7 +114,7 @@ class Player:
                             elif not self.ARENA.canGoIn(self.X_POS, self.Y_POS, PLAYER_SIZE):
                                 self.X_POS += 2
                             self.graph.update("K_LEFT", self.X_POS, self.Y_POS)
-            if userInputs[3] == 1 and len(self.BOMBS) < self.max_bomb:
+            if inputs[3] == 1 and len(self.BOMBS) < self.max_bomb:
                 if self.ARENA.hasBlockPosition(self.X_ARENA_POS, self.Y_ARENA_POS) == '-':
                     self.BOMBS.append(Bomb(self))
                     self.place_bomb = True
@@ -174,6 +200,8 @@ class Arena:
     HEIGHT = 9
     MATRIX = []
     BOMBS = []
+    PLAYERS = []
+    END = False
 
     def __init__(self, WIDTH, HEIGHT):
         self.WIDTH = WIDTH

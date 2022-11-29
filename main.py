@@ -5,60 +5,40 @@ import os
 import random
 import time
 from sys import exit
-from game import Arena, Player
+from game import Arena, Player, HumanMode
+from neural import Neural
 from graph import SCREEN_ON
+import numpy as np
 
 GAME_MODE = "HUMAN_MODE"
 
-
 pygame.init()
 
-def playGame():
-    PLAYER_ID = 0
+def playGame(modes):
     arena = Arena(9,9)
     clock = pygame.time.Clock()
-    players = [Player(0, arena), Player(1, arena), Player(2, arena), Player(3, arena)]
+    for mode in modes:
+        if isinstance(mode, Neural):
+            mode.arena = arena
+            mode.clock = clock
+    players = [Player(0, arena, modes[0]), Player(1, arena, modes[1]), Player(2, arena, modes[2]), Player(3, arena, modes[3])]
+    arena.PLAYERS = players
     run = True
     while(run):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
                 exit()
-
-        input = [0,0,0,0]
-
-        if GAME_MODE == "HUMAN_MODE":
-            userInputArray = pygame.key.get_pressed()
-
-            if userInputArray[pygame.K_UP]:
-                input = [1,1,1,0]
-            elif userInputArray[pygame.K_DOWN]:
-                input = [1,1,0,0]
-            elif userInputArray[pygame.K_LEFT]:
-                input = [1,0,0,0]
-            elif userInputArray[pygame.K_RIGHT]:
-                input = [1,0,1,0]
-            elif userInputArray[pygame.K_0]:
-                PLAYER_ID = 0
-            elif userInputArray[pygame.K_1]:
-                PLAYER_ID = 1
-            elif userInputArray[pygame.K_2]:
-                PLAYER_ID = 2
-            elif userInputArray[pygame.K_3]:
-                PLAYER_ID = 3
-            if userInputArray[pygame.K_SPACE]:
-                input[3] = 1
-        
+        if arena.END:
+            run = False
 
         if SCREEN_ON:
             arena.drawn()
-            
-            for player in players:
-                if player.ID == PLAYER_ID:
-                    player.update(input)
-                else:
-                    player.update([0,0,0,0])
+
+        for player in players:
+            player.update()
            
+        if SCREEN_ON:
             clock.tick(60)
             pygame.display.update()
 
@@ -82,7 +62,13 @@ def run():
 
 #run()
 
-playGame()
+neural_list = []
+for j in range(4):
+    aux_list = []
+    for i in range(7502):
+        aux_list.append(random.randint(-500, 500))
+    neural_list.append(aux_list)
+playGame([Neural(neural_list[0], 0), Neural(neural_list[1], 1), Neural(neural_list[2], 2), Neural(neural_list[3], 3)])
 
 #  Arena:
 #[['o', 'o', 'o', 'o', 'o', 'o', 'o', 'o', 'o', 'o', 'o'], 
