@@ -37,10 +37,15 @@ def playGame(modes):
 
         for player in players:
             player.update()
+        
+        arena.check_end()
            
         if SCREEN_ON:
             clock.tick(60)
             pygame.display.update()
+        
+        #if clock.get_time() > 10:
+        #    return
 
 def run():
     now = datetime.datetime.now()
@@ -59,16 +64,19 @@ def run():
     f.write("Gen;Time;Best Score;First Place Generation;Second Place Generation;Third Place Generation\n")
     f.close()
     ####
+    run = True
+    while(run):
+        neural_list = []
+        for j in range(4):
+            aux_list = []
+            for i in range(7502):
+                aux_list.append(random.randint(-500, 500))
+            neural_list.append(aux_list)
+        playGame([Neural(neural_list[0], 0), Neural(neural_list[1], 1), Neural(neural_list[2], 2), Neural(neural_list[3], 3)])
 
-#run()
+run()
 
-neural_list = []
-for j in range(4):
-    aux_list = []
-    for i in range(7502):
-        aux_list.append(random.randint(-500, 500))
-    neural_list.append(aux_list)
-playGame([Neural(neural_list[0], 0), Neural(neural_list[1], 1), Neural(neural_list[2], 2), Neural(neural_list[3], 3)])
+
 
 #  Arena:
 #[['o', 'o', 'o', 'o', 'o', 'o', 'o', 'o', 'o', 'o', 'o'], 
