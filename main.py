@@ -7,6 +7,7 @@ import time
 from sys import exit
 from game import Arena, Player, HumanMode
 from neural import Neural
+from genetic import crossover
 from graph import SCREEN_ON
 import numpy as np
 
@@ -71,9 +72,11 @@ def run():
     player_list = []
     while(run):
         neural_list = create_run(player_list)
-        
+        i = 0
         for neuron in neural_list:
+            i += 1
             player_list.append(playGame([Neural(neuron[0], 0), Neural(neuron[1], 1), Neural(neuron[2], 2), Neural(neuron[3], 3)]))
+            print(i)
 
 def create_run(player_list):
     if player_list == []:
@@ -88,7 +91,17 @@ def create_run(player_list):
             neural_list.append(neuron)
         return neural_list
     else:
-        print("todo")
+        neural_list = []
+        new_list = []
+        for p in player_list:
+            neural_list.append(p.MODE.weight)
+        for aux_list_1 in neural_list:
+            for aux_list_2 in neural_list:
+                if aux_list_1 == aux_list_2:
+                    continue
+                new_list += crossover(aux_list_1, aux_list_2, 0.1)
+        print("LISTA:")
+        print(len(new_list))
         #todo: second+ generation
 
 run()

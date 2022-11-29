@@ -18,6 +18,7 @@ def degrau(x):
 class Neural(GameMode):
     arena = None
     clock = None
+    weight = None
 
     def __init__(self, weight, id):
         self.weight = weight
