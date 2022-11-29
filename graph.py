@@ -379,11 +379,6 @@ class PlayerGraph:
         self.Y_POS = y
 
     def update(self, userInput, X_POS, Y_POS):
-        if self.is_death:
-            if self.death_step < 36:
-                self.death()
-            return
-        
         if self.step_index >= 16:
             self.step_index = 0
 
@@ -410,13 +405,19 @@ class PlayerGraph:
         self.step_index += 1
 
     def death(self):
-        self.image = self.image[self.death_step // 6]
+        self.image = self.death_img[self.death_step // 6]
         self.player_rect = self.image.get_rect()
         self.player_rect.x = self.X_POS
         self.player_rect.y = self.Y_POS
         self.death_step += 1
 
     def draw(self, width, height):
+        if self.is_death:
+            if self.death_step < 35:
+                self.death()
+            else:
+                return
+        
         offsetX = (SCREEN_WIDTH - BLOCK_SIZE * width) / 2
         offsetY = (SCREEN_HEIGHT - BLOCK_SIZE * height) / 2
         SCREEN.blit(self.image, (offsetX+self.X_POS, offsetY+self.Y_POS))
@@ -437,7 +438,7 @@ class ArenaGraph:
                     image = BLOCK[0]
                 elif matrix[i][j] == '*':
                     image = BRICK[0]
-                elif matrix[i][j] == '-' or matrix[i][j] == '0':
+                elif matrix[i][j] == '-' or matrix[i][j] == '0' or matrix[i][j] == 'x':
                     if matrix[i][j-1] == 'o':
                         image = GROUND_SHADOW[0]
                     else:

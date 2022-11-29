@@ -16,9 +16,10 @@ class Player:
         self.ARENA = ARENA
         self.BOMBS = []
         self.speed = 1
-        self.max_bomb = 1
+        self.max_bomb = 3
         self.bomb_power = 1
         self.place_bomb = False
+        self.death = False
 
         if ID == 0:
             self.X_POS = 0
@@ -46,50 +47,56 @@ class Player:
         if DEBUG and self.ID == DEBUG_PLAYER:
             print([self.X_ARENA_POS, self.Y_ARENA_POS])
 
-        for k in range(self.speed):
-            if userInputs[0] == 1:
-                if userInputs[1] == 1:
-                    if userInputs[2] == 1:
-                        self.Y_POS -= 1
-                        if self.place_bomb:
-                            if not self.ARENA.canGoIn(self.X_POS, self.Y_POS, PLAYER_SIZE, True):
-                                self.Y_POS += 2
-                        elif not self.ARENA.canGoIn(self.X_POS, self.Y_POS, PLAYER_SIZE):
-                                self.Y_POS += 2
-                        self.graph.update("K_UP", self.X_POS, self.Y_POS)
-                    else:
-                        self.Y_POS += 1
-                        if self.place_bomb:
-                            if not self.ARENA.canGoIn(self.X_POS, self.Y_POS, PLAYER_SIZE, True):
+        if self.ARENA.checkDeath(int(self.X_ARENA_POS), int(self.Y_ARENA_POS)):
+            self.graph.is_death = True
+            self.death = True
+
+        if not self.death:
+            for k in range(self.speed):
+                if userInputs[0] == 1:
+                    if userInputs[1] == 1:
+                        if userInputs[2] == 1:
+                            self.Y_POS -= 1
+                            if self.place_bomb:
+                                if not self.ARENA.canGoIn(self.X_POS, self.Y_POS, PLAYER_SIZE, True):
+                                    self.Y_POS += 2
+                            elif not self.ARENA.canGoIn(self.X_POS, self.Y_POS, PLAYER_SIZE):
+                                    self.Y_POS += 2
+                            self.graph.update("K_UP", self.X_POS, self.Y_POS)
+                        else:
+                            self.Y_POS += 1
+                            if self.place_bomb:
+                                if not self.ARENA.canGoIn(self.X_POS, self.Y_POS, PLAYER_SIZE, True):
+                                    self.Y_POS -= 2
+                            elif not self.ARENA.canGoIn(self.X_POS, self.Y_POS, PLAYER_SIZE):
                                 self.Y_POS -= 2
-                        elif not self.ARENA.canGoIn(self.X_POS, self.Y_POS, PLAYER_SIZE):
-                            self.Y_POS -= 2
-                        self.graph.update("K_DOWN", self.X_POS, self.Y_POS)
-                else:
-                    if userInputs[2] == 1:
-                        self.X_POS += 1
-                        if self.place_bomb:
-                            if not self.ARENA.canGoIn(self.X_POS, self.Y_POS, PLAYER_SIZE, True):
-                                self.X_POS -= 2
-                        elif not self.ARENA.canGoIn(self.X_POS, self.Y_POS, PLAYER_SIZE):
-                            self.X_POS -= 2
-                        self.graph.update("K_RIGHT", self.X_POS, self.Y_POS)
+                            self.graph.update("K_DOWN", self.X_POS, self.Y_POS)
                     else:
-                        self.X_POS -= 1
-                        if self.place_bomb:
-                            if not self.ARENA.canGoIn(self.X_POS, self.Y_POS, PLAYER_SIZE, True):
+                        if userInputs[2] == 1:
+                            self.X_POS += 1
+                            if self.place_bomb:
+                                if not self.ARENA.canGoIn(self.X_POS, self.Y_POS, PLAYER_SIZE, True):
+                                    self.X_POS -= 2
+                            elif not self.ARENA.canGoIn(self.X_POS, self.Y_POS, PLAYER_SIZE):
+                                self.X_POS -= 2
+                            self.graph.update("K_RIGHT", self.X_POS, self.Y_POS)
+                        else:
+                            self.X_POS -= 1
+                            if self.place_bomb:
+                                if not self.ARENA.canGoIn(self.X_POS, self.Y_POS, PLAYER_SIZE, True):
+                                    self.X_POS += 2
+                            elif not self.ARENA.canGoIn(self.X_POS, self.Y_POS, PLAYER_SIZE):
                                 self.X_POS += 2
-                        elif not self.ARENA.canGoIn(self.X_POS, self.Y_POS, PLAYER_SIZE):
-                            self.X_POS += 2
-                        self.graph.update("K_LEFT", self.X_POS, self.Y_POS)
-        if userInputs[3] == 1 and len(self.BOMBS) < self.max_bomb:
-            if self.ARENA.hasBlockPosition(self.X_ARENA_POS, self.Y_ARENA_POS) == '-':
-                self.BOMBS.append(Bomb(self))
-                self.place_bomb = True
+                            self.graph.update("K_LEFT", self.X_POS, self.Y_POS)
+            if userInputs[3] == 1 and len(self.BOMBS) < self.max_bomb:
+                if self.ARENA.hasBlockPosition(self.X_ARENA_POS, self.Y_ARENA_POS) == '-':
+                    self.BOMBS.append(Bomb(self))
+                    self.place_bomb = True
         if self.ARENA.hasBlockGlobal(self.X_POS, self.Y_POS) == '-':
             self.place_bomb = False
         for bomb in self.BOMBS:
             bomb.update()
+        self.drawn()
 
     def drawn(self):
         self.graph.draw(self.ARENA.WIDTH, self.ARENA.HEIGHT)
@@ -106,6 +113,7 @@ class Bomb:
         self.time = pygame.time.get_ticks()
         self.boom = False
         self.OWNER.ARENA.MATRIX[self.X_POS][self.Y_POS] = '0'
+        self.OWNER.ARENA.BOMBS[self.X_POS][self.Y_POS] = self
 
     def update(self):
         if not(self.boom):
@@ -117,6 +125,7 @@ class Bomb:
                 self.step = 0
                 self.explode()
         elif self.exist:
+            self.OWNER.ARENA.checkBrickDestroy(self.X_POS, self.Y_POS,self.step==34)
             BombGraph.explosion_draw(self.X_POS,self.Y_POS,self.step, "start", 0,self.OWNER.ARENA.WIDTH, self.OWNER.ARENA.HEIGHT)
             self.explosionRec("x+", self.X_POS + 1, self.Y_POS, self.bomb_power)
             self.explosionRec("y-", self.X_POS, self.Y_POS - 1, self.bomb_power)
@@ -157,12 +166,14 @@ class Bomb:
     
     def explode(self):
         self.boom = True
+        self.OWNER.ARENA.BOMBS[self.X_POS][self.Y_POS] = None
 
 
 class Arena:
     WIDTH = 9
     HEIGHT = 9
     MATRIX = []
+    BOMBS = []
 
     def __init__(self, WIDTH, HEIGHT):
         self.WIDTH = WIDTH
@@ -180,9 +191,12 @@ class Arena:
         self.MATRIX = []
         for i in range(self.WIDTH+2):
             col = []
+            colBomb = []
             for j in range(self.HEIGHT+2):
                 col.append('*')
+                colBomb.append(None)
             self.MATRIX.append(col)
+            self.BOMBS.append(colBomb)
 
         for i in range(self.WIDTH+2):
             for j in range(self.HEIGHT+2):
@@ -194,6 +208,11 @@ class Arena:
                     self.MATRIX[i][j] = '-'
                 elif (i % 2 == 0) and (j % 2 == 0):
                     self.MATRIX[i][j] = 'o'
+
+    def checkDeath(self, X_POS, Y_POS):
+        if self.MATRIX[X_POS][Y_POS] == 'x':
+            return True
+        return False
 
     def canGoIn(self, X_POS, Y_POS, OBJECT_SIZE, MOVE_THROUGH_BOMB = False):
         left_x = (X_POS) // BLOCK_SIZE + 1
@@ -264,6 +283,13 @@ class Arena:
                 # TODO: Drop ITEM
                 self.MATRIX[X_POS][Y_POS] = '-'
             return True
+        elif self.MATRIX[X_POS][Y_POS] == '0' and self.BOMBS[X_POS][Y_POS] != None:
+            self.BOMBS[X_POS][Y_POS].explode()
+        else:
+            if bool_destroy:
+                self.MATRIX[X_POS][Y_POS] = '-'
+            else:
+                self.MATRIX[X_POS][Y_POS] = 'x'
         return False
                     
     def update(self):

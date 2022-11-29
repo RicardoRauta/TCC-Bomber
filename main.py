@@ -58,7 +58,6 @@ def playGame():
                     player.update(input)
                 else:
                     player.update([0,0,0,0])
-                player.drawn()
            
             clock.tick(60)
             pygame.display.update()
