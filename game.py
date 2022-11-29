@@ -1,6 +1,7 @@
 import numpy as np
 from graph import ArenaGraph, PlayerGraph, BombGraph, BLOCK_SIZE, PLAYER_SIZE
 import pygame
+import time
 
 TIME_SPEED = 1
 DEBUG = False
@@ -207,6 +208,7 @@ class Arena:
         self.WIDTH = WIDTH
         self.MATRIX = HEIGHT
         self.createMatrix()
+        self.time = time.time()
 
     def onEdge(self, positionX, positionY):
         if positionX == 0 or positionX == self.WIDTH+1:
@@ -320,8 +322,13 @@ class Arena:
                 self.MATRIX[X_POS][Y_POS] = 'x'
         return False
                     
-    def update(self):
-        print("arena update")
+    def check_end(self):
+        alive = 4
+        for p in self.PLAYERS:
+            if p.death:
+                alive -= 1
+        if alive <= 1:# or time.time() - self.time + 100:
+            self.END = True
 
     def drawn(self):
         ArenaGraph.draw(self.MATRIX, self.WIDTH+2, self.HEIGHT+2)
