@@ -31,6 +31,9 @@ def playGame(modes):
                 exit()
         if arena.END:
             run = False
+            for p in players:
+                if not p.death:
+                    return p
 
         if SCREEN_ON:
             arena.drawn()
