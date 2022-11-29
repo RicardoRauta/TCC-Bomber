@@ -68,14 +68,28 @@ def run():
     f.close()
     ####
     run = True
+    player_list = []
     while(run):
+        neural_list = create_run(player_list)
+        
+        for neuron in neural_list:
+            player_list.append(playGame([Neural(neuron[0], 0), Neural(neuron[1], 1), Neural(neuron[2], 2), Neural(neuron[3], 3)]))
+
+def create_run(player_list):
+    if player_list == []:
         neural_list = []
-        for j in range(4):
-            aux_list = []
-            for i in range(7502):
-                aux_list.append(random.randint(-500, 500))
-            neural_list.append(aux_list)
-        playGame([Neural(neural_list[0], 0), Neural(neural_list[1], 1), Neural(neural_list[2], 2), Neural(neural_list[3], 3)])
+        for k in range(50):
+            neuron = []
+            for j in range(4):
+                aux_list = []
+                for i in range(7502):
+                    aux_list.append(random.randint(-500, 500))
+                neuron.append(aux_list)
+            neural_list.append(neuron)
+        return neural_list
+    else:
+        print("todo")
+        #todo: second+ generation
 
 run()
 
