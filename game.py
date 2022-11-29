@@ -327,7 +327,9 @@ class Arena:
         for p in self.PLAYERS:
             if p.death:
                 alive -= 1
-        if alive <= 1:# or time.time() - self.time + 100:
+        if alive <= 1:
+            self.END = True
+        if time.time()-self.time > 10:
             self.END = True
 
     def drawn(self):
