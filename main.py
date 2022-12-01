@@ -10,6 +10,7 @@ from neural import Neural
 from genetic import crossover
 from graph import SCREEN_ON
 import numpy as np
+from threading import Thread
 
 GAME_MODE = "HUMAN_MODE"
 
@@ -70,13 +71,23 @@ def run():
     ####
     run = True
     player_list = []
+    thread_list = []
+
     while(run):
         neural_list = create_run(player_list)
+        player_list.clear()
+        thread_list.clear()
         i = 0
         for neuron in neural_list:
             i += 1
-            player_list.append(playGame([Neural(neuron[0], 0), Neural(neuron[1], 1), Neural(neuron[2], 2), Neural(neuron[3], 3)]))
+            t = Thread(target=playGame, args=[[Neural(neuron[0], 0), Neural(neuron[1], 1), Neural(neuron[2], 2), Neural(neuron[3], 3)]])
+            thread_list.append(t)
+            t.start()
             print(i)
+            for thread in thread_list:
+                thread.join()
+            print("end " + str(i))
+        
 
 def create_run(player_list):
     if player_list == []:

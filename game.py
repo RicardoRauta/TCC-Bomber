@@ -329,7 +329,7 @@ class Arena:
                 alive -= 1
         if alive <= 1:
             self.END = True
-        if time.time()-self.time > 1:
+        if time.time()-self.time > 60:
             self.END = True
 
     def drawn(self):
