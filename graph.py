@@ -448,6 +448,12 @@ class ArenaGraph:
                         image = GROUND_SHADOW[0]
                     else:
                         image = GROUND[0]
+                elif matrix[i][j] == 'b':
+                    image = ITEM_EXTRA_BOMB[0]
+                elif matrix[i][j] == 'p':
+                    image = ITEM_SPEED_INCREASE[0]
+                elif matrix[i][j] == 'f':
+                    image = ITEM_BLAST_RADIUS[0]
                 SCREEN.blit(image, (offsetX+BLOCK_SIZE*i,offsetY+BLOCK_SIZE*j))
 
 class BombGraph:

@@ -1,3 +1,4 @@
+import random
 import numpy as np
 from graph import ArenaGraph, PlayerGraph, BombGraph, BLOCK_SIZE, PLAYER_SIZE
 import pygame
@@ -123,6 +124,14 @@ class Player:
                     self.place_bomb = True
         if self.ARENA.hasBlockGlobal(self.X_POS, self.Y_POS) == '-':
             self.place_bomb = False
+        item = self.ARENA.hasItem(int(self.X_ARENA_POS), int(self.Y_ARENA_POS))
+        if item != None:
+            if item == 'b':
+                self.max_bomb += 1
+            elif item == 'f':
+                self.bomb_power += 1
+            elif item == 'p':
+                self.speed += 1
         for bomb in self.BOMBS:
             bomb.update()
         self.drawn()
@@ -252,16 +261,16 @@ class Arena:
         up_y = (Y_POS) // BLOCK_SIZE + 1
         down_y = (Y_POS + OBJECT_SIZE) // BLOCK_SIZE + 1
 
-        if self.MATRIX[left_x][up_y] != '-':
+        if self.MATRIX[left_x][up_y] == '0' or self.MATRIX[left_x][up_y] == '*' or self.MATRIX[left_x][up_y] == 'o':
             if not(MOVE_THROUGH_BOMB and self.MATRIX[left_x][up_y] == '0'):
                 return False
-        if self.MATRIX[right_x][up_y] != '-':
+        if self.MATRIX[right_x][up_y] == '0'  or self.MATRIX[right_x][up_y] == '*' or self.MATRIX[right_x][up_y] == 'o':
             if not(MOVE_THROUGH_BOMB and self.MATRIX[right_x][up_y] == '0'):
                 return False
-        if self.MATRIX[left_x][down_y] != '-':
+        if self.MATRIX[left_x][down_y] == '0'  or self.MATRIX[left_x][down_y] == '*' or self.MATRIX[left_x][down_y] == 'o':
             if not(MOVE_THROUGH_BOMB and self.MATRIX[left_x][down_y] == '0'):
                 return False
-        if self.MATRIX[right_x][down_y] != '-':
+        if self.MATRIX[right_x][down_y] == '0'  or self.MATRIX[right_x][down_y] == '*' or self.MATRIX[right_x][down_y] == 'o':
             if not(MOVE_THROUGH_BOMB and self.MATRIX[right_x][down_y] == '0'):
                 return False
         return True
@@ -284,6 +293,13 @@ class Arena:
         elif self.MATRIX[right_x][down_y] != '-':
             return self.MATRIX[right_x][down_y]
         return '-'
+    
+    def hasItem(self, X_POS, Y_POS):
+        if self.MATRIX[X_POS][Y_POS] == 'b' or self.MATRIX[X_POS][Y_POS] == 'f' or self.MATRIX[X_POS][Y_POS] == 'p':
+            item = self.MATRIX[X_POS][Y_POS]
+            self.MATRIX[X_POS][Y_POS] = '-'
+            return item
+        return None
 
     def hasBlockGlobalDir(self, X_POS, Y_POS, DIR):
         left_x = (X_POS) // BLOCK_SIZE + 1
@@ -312,8 +328,15 @@ class Arena:
     def checkBrickDestroy(self, X_POS, Y_POS, bool_destroy):
         if self.MATRIX[X_POS][Y_POS] == '*':
             if bool_destroy:
-                # TODO: Drop ITEM
-                self.MATRIX[X_POS][Y_POS] = '-'
+                rand = random.randint(0, 100)
+                if rand < 10:
+                    self.MATRIX[X_POS][Y_POS] = 'b'
+                elif rand < 20:
+                    self.MATRIX[X_POS][Y_POS] = 'p'
+                elif rand < 30:
+                    self.MATRIX[X_POS][Y_POS] = 'f'
+                else:
+                    self.MATRIX[X_POS][Y_POS] = '-'                
             return True
         elif self.MATRIX[X_POS][Y_POS] == '0' and self.BOMBS[X_POS][Y_POS] != None:
             self.BOMBS[X_POS][Y_POS].explode()

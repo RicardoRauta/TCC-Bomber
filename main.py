@@ -12,6 +12,7 @@ from graph import SCREEN_ON
 import numpy as np
 from threading import Thread
 
+#GAME_MODE = "IA_MODE"
 GAME_MODE = "HUMAN_MODE"
 
 pygame.init()
@@ -78,27 +79,32 @@ def run():
     # top_qtd = 2 * sqrt 
     top_qtd = int(2 * sqrt(arena_qtd))
 
-    generation = 0
-    while(run):
-        neural_list = create_run(player_result_list, arena_qtd, top_qtd)
-        player_result_list = [None] * arena_qtd
-        thread_list.clear()
-        i = 0
-        for neuron in neural_list:
-            neuron_player_list = [Neural(neuron[0], 0), Neural(neuron[1], 1), Neural(neuron[2], 2), Neural(neuron[3], 3)]
-            t = Thread(target=playGame, args=[neuron_player_list, player_result_list, i])
-            thread_list.append(t)
-            t.start()
-            i += 1
-            print("Arena generation " + str(generation) + " Start : " + str(i) + " / " + str(arena_qtd))
-        aux_end = 1
-        for thread in thread_list:
-            thread.join()
-            print("Arena generation " + str(generation) + " End : " + str(aux_end) + " / " + str(arena_qtd))
-            aux_end += 1
-        generation += 1
-        # TODO: LOG
-        # TODO: SAVE GEN
+    if GAME_MODE == "HUMAN_MODE":
+        modes = [HumanMode(), HumanMode(), HumanMode(), HumanMode()]
+        player_result_list = [None]
+        playGame(modes, player_result_list, 0)
+    else:
+        generation = 0
+        while(run):
+            neural_list = create_run(player_result_list, arena_qtd, top_qtd)
+            player_result_list = [None] * arena_qtd
+            thread_list.clear()
+            i = 0
+            for neuron in neural_list:
+                neuron_player_list = [Neural(neuron[0], 0), Neural(neuron[1], 1), Neural(neuron[2], 2), Neural(neuron[3], 3)]
+                t = Thread(target=playGame, args=[neuron_player_list, player_result_list, i])
+                thread_list.append(t)
+                t.start()
+                i += 1
+                print("Arena generation " + str(generation) + " Start : " + str(i) + " / " + str(arena_qtd))
+            aux_end = 1
+            for thread in thread_list:
+                thread.join()
+                print("Arena generation " + str(generation) + " End : " + str(aux_end) + " / " + str(arena_qtd))
+                aux_end += 1
+            generation += 1
+            # TODO: LOG
+            # TODO: SAVE GEN
         
 
 def create_run(player_list, arena_qtd, top_qtd):
