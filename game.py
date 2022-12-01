@@ -163,7 +163,8 @@ class Bomb:
                 self.step = 0
                 self.explode()
         elif self.exist:
-            self.OWNER.ARENA.checkBrickDestroy(self.X_POS, self.Y_POS,self.step==34)
+            if self.OWNER.ARENA.checkBrickDestroy(self.X_POS, self.Y_POS,self.step==34):
+                self.OWNER.SCORE += 1
             BombGraph.explosion_draw(self.X_POS,self.Y_POS,self.step, "start", 0,self.OWNER.ARENA.WIDTH, self.OWNER.ARENA.HEIGHT)
             self.explosionRec("x+", self.X_POS + 1, self.Y_POS, self.bomb_power)
             self.explosionRec("y-", self.X_POS, self.Y_POS - 1, self.bomb_power)
@@ -179,6 +180,7 @@ class Bomb:
         if left == 0 or self.OWNER.ARENA.hasBlockPosition(x, y) == 'o':
             return
         if self.OWNER.ARENA.checkBrickDestroy(x,y,self.step==34):
+            self.OWNER.SCORE += 1
             BombGraph.explosion_draw(x ,y,self.step, "block", 0,self.OWNER.ARENA.WIDTH, self.OWNER.ARENA.HEIGHT)
             return
 
@@ -219,8 +221,7 @@ class Arena:
         self.WIDTH = WIDTH
         self.MATRIX = HEIGHT
         self.createMatrix()
-        self.time = time.time()
-
+        self.time = pygame.time.get_ticks()
     def onEdge(self, positionX, positionY):
         if positionX == 0 or positionX == self.WIDTH+1:
             return True
@@ -354,7 +355,7 @@ class Arena:
                 alive -= 1
         if alive <= 1:
             self.END = True
-        if time.time()-self.time > 120 / TIME_SPEED:
+        if pygame.time.get_ticks() - self.time >= 120000 / TIME_SPEED:
             self.END = True
 
     def drawn(self):

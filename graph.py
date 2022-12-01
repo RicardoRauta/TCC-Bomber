@@ -10,8 +10,12 @@ BOMB_SIZE = 30
 
 SCREEN_ON = False
 
-if SCREEN_ON:
+def init_graph():
     SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+    return SCREEN
+
+if SCREEN_ON:
+    SCREEN = init_graph()
 
 BOMB = [pygame.image.load(os.path.join("Assets/Bomb", "Bomb1.png")),
         pygame.image.load(os.path.join("Assets/Bomb", "Bomb2.png")),
@@ -334,10 +338,6 @@ GROUND = [pygame.transform.scale(GROUND[0], (BLOCK_SIZE, BLOCK_SIZE))]
 GROUND_SHADOW = [pygame.image.load(os.path.join("Assets/Terrain", "GroundShadow.png"))]
 
 GROUND_SHADOW = [pygame.transform.scale(GROUND_SHADOW[0], (BLOCK_SIZE, BLOCK_SIZE))]
-
-def init_graph():
-    SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-    return SCREEN
 
 class PlayerGraph:
     X_POS = 0

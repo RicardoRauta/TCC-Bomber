@@ -8,11 +8,12 @@ from sys import exit
 from game import Arena, Player, HumanMode, TIME_SPEED
 from neural import Neural
 from genetic import crossover
-from graph import SCREEN_ON
+from graph import SCREEN_ON, init_graph
 import numpy as np
 from threading import Thread
 
 GAME_MODE = "IA_MODE"
+LOAD = True
 #GAME_MODE = "HUMAN_MODE"
 
 pygame.init()
@@ -55,6 +56,7 @@ def playGame(modes, result, result_id):
             return [p.SCORE ,p.MODE.weight]
 
 def run():
+    global SCREEN
     now = datetime.datetime.now()
     
     if not os.path.exists("Output"):
@@ -69,7 +71,7 @@ def run():
     #### Inicializar tabela de valores
     table = "Output/table_{0:%y}_{0:%m}_{0:%d}.csv".format(now)
     tableFile = open(table, "w")
-    tableFile.write("Gen;Time;Best Score;First Place Generation;Second Place Generation;Third Place Generation\n")
+    tableFile.write("Gen;Time;Best Score;First Place Generation Score;Second Place Generation Score;Third Place Generation Score\n")
     ####
     run = True
     player_result_list = []
@@ -78,20 +80,24 @@ def run():
     # top_qtd^2 = 4*arena_qtd
     # top_qtd = 2 * sqrt 
     top_qtd = int(2 * sqrt(arena_qtd))
+    best_score = -1000
+    timer = pygame.time.get_ticks()
 
     if GAME_MODE == "HUMAN_MODE":
+        TIME_SPEED = 1
+        SCREEN = init_graph()
+        
         modes = [HumanMode(), HumanMode(), HumanMode(), HumanMode()]
         player_result_list = [None]
         playGame(modes, player_result_list, 0)
     else:
         generation = 0
+        if LOAD:
+            loadFile = open("Output/best.save", "r")
+            generation, player_result_list = load_best(loadFile, top_qtd)
+            loadFile.close()
+        
         while(run):
-            if generation % 100 == 0:
-                logFile.write("Start generation {0}\n\n".format(generation))
-                for p in player_result_list:
-                    logFile.write(str(p))
-                logFile.write("\nEnd generation {0}\n\n".format(generation))
-                #tableFile.write("{0};{1};{2};{3};{4};{5};{6};{7}".format(generation, ))
             neural_list = create_run(player_result_list, arena_qtd, top_qtd)
             player_result_list = [None] * arena_qtd
             thread_list.clear()
@@ -102,18 +108,66 @@ def run():
                 thread_list.append(t)
                 t.start()
                 i += 1
-                print("Arena generation " + str(generation) + " Start : " + str(i) + " / " + str(arena_qtd))
+                #print("Arena generation " + str(generation) + " Start : " + str(i) + " / " + str(arena_qtd))
             aux_end = 1
             for thread in thread_list:
                 thread.join()
-                print("Arena generation " + str(generation) + " End : " + str(aux_end) + " / " + str(arena_qtd))
+                #print("Arena generation " + str(generation) + " End : " + str(aux_end) + " / " + str(arena_qtd))
                 aux_end += 1
+            error = filter_player_list(player_result_list)
+            player_result_list.sort(reverse=True)
+            if player_result_list[0][0] > best_score:
+                best_score = player_result_list[0][0]
+            if generation % 20 == 0:
+                bestFile = open("Output/best.save", "w")
+                save_best(generation, player_result_list[0:top_qtd], bestFile)
+                bestFile.close()
+
+                logFile.write("Start generation {0}\n\n".format(generation))
+                save_best(generation, player_result_list[0:top_qtd], logFile)
+                logFile.write("\nEnd generation {0}\n\n".format(generation))
+                tableFile.write("{0};{1};{2};{3};{4};{5}".format(generation, pygame.time.get_ticks()-timer, best_score, player_result_list[0][0], player_result_list[1][0], player_result_list[2][0]))
+            print("Gen {0} COMPLETE - {1} ERROR".format(generation, error))
             generation += 1
-            # TODO: LOG
-            # TODO: SAVE GEN
     logFile.close()
     tableFile.close()
-        
+
+def save_best(generation, list, file):
+    file.write(str(generation) + "\n")
+    for it in range(len(list)):
+        file.write(str(list[it][0]) + "\n")
+        for value in list[it][1]:
+            file.write(str(value) + " ")
+        file.write("\n")
+
+def load_best(file, qtd):
+    generation = int(file.readline())
+    list = []
+    for it in range(qtd):
+        score = int(file.readline())
+        line = file.readline().split(' ')
+        list_aux = []
+        for l in line:
+            try:
+                value = int(l)
+                list_aux.append(value)
+            except:
+                None
+        list.append([score, list_aux])
+    return generation+1, list
+
+def filter_player_list(player_list):
+    i = 0
+    error_qtd = 0
+    for p in player_list:
+        if p == None:
+            error_qtd += 1
+            aux_list = []
+            for aux in range(7502):
+                aux_list.append(random.randint(-500, 500))
+            player_list[i] = [-1, aux_list]
+        i += 1
+    return error_qtd
 
 def create_run(player_list, arena_qtd, top_qtd):
     if player_list == []:
@@ -128,15 +182,6 @@ def create_run(player_list, arena_qtd, top_qtd):
             neural_list.append(neuron)
         return neural_list
     else:
-        i = 0
-        for p in player_list:
-            if p == None:
-                aux_list = []
-                for aux in range(7502):
-                    aux_list.append(random.randint(-500, 500))
-                player_list[i] = [-1, aux_list]
-            i += 1
-        player_list.sort(reverse=True)
         neural_list = []
         new_list = []
         i = -1

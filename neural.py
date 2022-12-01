@@ -76,6 +76,12 @@ class Neural(GameMode):
                     array.append(3)
                 elif k == 'X':
                     array.append(4)
+                elif k == 'b':
+                    array.append(5)
+                elif k == 'p':
+                    array.append(6)
+                elif k == 's':
+                    array.append(7)
                 else:
                     array.append(5)
 
