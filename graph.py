@@ -8,7 +8,7 @@ BLOCK_SIZE = 32
 PLAYER_SIZE = 28
 BOMB_SIZE = 30
 
-SCREEN_ON = True
+SCREEN_ON = False
 
 if SCREEN_ON:
     SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -412,6 +412,9 @@ class PlayerGraph:
         self.death_step += 1
 
     def draw(self, width, height):
+        if not SCREEN_ON:
+            return
+
         if self.is_death:
             if self.death_step < 35:
                 self.death()
@@ -429,6 +432,8 @@ class PlayerGraph:
 class ArenaGraph:
     
     def draw(matrix, width, height):
+        if not SCREEN_ON:
+            return
         offsetX = (SCREEN_WIDTH - BLOCK_SIZE * width) / 2
         offsetY = (SCREEN_HEIGHT - BLOCK_SIZE * height) / 2
         for i in range(width):
@@ -447,6 +452,8 @@ class ArenaGraph:
 
 class BombGraph:
     def draw(x, y, step, arena_width, arena_height):
+        if not SCREEN_ON:
+            return
         offsetX = (SCREEN_WIDTH - BLOCK_SIZE * arena_width) / 2
         offsetY = (SCREEN_HEIGHT - BLOCK_SIZE * arena_height) / 2
 
@@ -456,6 +463,8 @@ class BombGraph:
         SCREEN.blit(BOMB[step//4], [(x-1) * BLOCK_SIZE + offsetX + bomb_x, (y-1) * BLOCK_SIZE + offsetY + bomb_y])
 
     def explosion_draw(x, y, step, state, rotate, arena_width, arena_height):
+        if not SCREEN_ON:
+            return
         offsetX = (SCREEN_WIDTH - BLOCK_SIZE * arena_width) / 2
         offsetY = (SCREEN_HEIGHT - BLOCK_SIZE * arena_height) / 2
 
