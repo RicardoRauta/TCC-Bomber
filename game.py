@@ -32,6 +32,7 @@ class HumanMode(GameMode):
         return input
 
 class Player:
+    SCORE = 0
     X_POS = 0
     Y_POS = 0
     ID = 0
@@ -330,7 +331,7 @@ class Arena:
                 alive -= 1
         if alive <= 1:
             self.END = True
-        if time.time()-self.time > 120:
+        if time.time()-self.time > 120 / TIME_SPEED:
             self.END = True
 
     def drawn(self):

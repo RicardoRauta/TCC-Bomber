@@ -8,7 +8,7 @@ BLOCK_SIZE = 32
 PLAYER_SIZE = 28
 BOMB_SIZE = 30
 
-SCREEN_ON = False
+SCREEN_ON = True
 
 if SCREEN_ON:
     SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))

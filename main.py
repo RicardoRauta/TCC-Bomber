@@ -1,11 +1,11 @@
 import datetime
-from math import atanh
+from math import atanh, sqrt
 import pygame
 import os
 import random
 import time
 from sys import exit
-from game import Arena, Player, HumanMode
+from game import Arena, Player, HumanMode, TIME_SPEED
 from neural import Neural
 from genetic import crossover
 from graph import SCREEN_ON
@@ -42,16 +42,16 @@ def playGame(modes, result, result_id):
         
         arena.check_end()
            
+        clock.tick(60 / TIME_SPEED)
         if SCREEN_ON:
-            clock.tick(60)
             pygame.display.update()
         
         #if clock.get_time() > 10:
         #    return
     for p in players:
         if not p.death:
-            result[result_id] = p.MODE.weight
-            return p.MODE.weight
+            result[result_id] = [p.SCORE ,p.MODE.weight]
+            return [p.SCORE ,p.MODE.weight]
 
 def run():
     now = datetime.datetime.now()
@@ -73,10 +73,14 @@ def run():
     run = True
     player_result_list = []
     thread_list = []
-    arena_qtd = 50
+    arena_qtd = 1 # deve ter raiz quadrada inteira
+    # top_qtd^2 = 4*arena_qtd
+    # top_qtd = 2 * sqrt 
+    top_qtd = int(2 * sqrt(arena_qtd))
 
+    generation = 0
     while(run):
-        neural_list = create_run(player_result_list, arena_qtd)
+        neural_list = create_run(player_result_list, arena_qtd, top_qtd)
         player_result_list = [None] * arena_qtd
         thread_list.clear()
         i = 0
@@ -86,20 +90,18 @@ def run():
             thread_list.append(t)
             t.start()
             i += 1
-            print(i)
+            print("Arena generation " + str(generation) + " Start : " + str(i) + " / " + str(arena_qtd))
         aux_end = 1
         for thread in thread_list:
             thread.join()
-            print(aux_end)
+            print("Arena generation " + str(generation) + " End : " + str(aux_end) + " / " + str(arena_qtd))
             aux_end += 1
-        player_list_aux = 0
-        for p in player_result_list:
-            if p != None:
-                player_list_aux += 1
-        print("end players len " + str(player_list_aux))
+        generation += 1
+        # TODO: LOG
+        # TODO: SAVE GEN
         
 
-def create_run(player_list, arena_qtd):
+def create_run(player_list, arena_qtd, top_qtd):
     if player_list == []:
         neural_list = []
         for k in range(arena_qtd):
@@ -112,21 +114,42 @@ def create_run(player_list, arena_qtd):
             neural_list.append(neuron)
         return neural_list
     else:
-        neural_list = []
-        new_list = []
+        i = 0
         for p in player_list:
             if p == None:
+                aux_list = []
+                for aux in range(7502):
+                    aux_list.append(random.randint(-500, 500))
+                player_list[i] = [-1, aux_list]
+            i += 1
+        player_list.sort(reverse=True)
+        neural_list = []
+        new_list = []
+        i = -1
+        for k in range(top_qtd):
+            i += 1
+            if k == None:
                 continue
-            neural_list.append(p)
+            neural_list.append(player_list[i][1])
         i = 0
         for aux_list_1 in neural_list:
             for aux_list_2 in neural_list[i:len(neural_list)]:
                 if aux_list_1 == aux_list_2:
                     continue
                 new_list += crossover(aux_list_1, aux_list_2, 0.1)
+            new_list.append(aux_list_1)
             i += 1
+        if len(player_list) < arena_qtd:
+            for k in range(arena_qtd-len(player_list)):
+                neuron = []
+                for j in range(4):
+                    aux_list = []
+                    for i in range(7502):
+                        aux_list.append(random.randint(-500, 500))
+                    new_list.append(aux_list)
+        random.shuffle(new_list)
         aux = 0
-        neural_final_list = []
+        neural_final_list = []        
         for k in range(arena_qtd):
             neuron = []
             for j in range(4):
@@ -134,7 +157,6 @@ def create_run(player_list, arena_qtd):
                 aux += 1
             neural_final_list.append(neuron)
         return neural_final_list
-        #todo: second+ generation
 
 run()
 
