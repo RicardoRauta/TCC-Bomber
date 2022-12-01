@@ -35,6 +35,7 @@ class Player:
     X_POS = 0
     Y_POS = 0
     ID = 0
+    MODE = None
 
     def __init__(self, ID, ARENA, MODE):
         self.ID = ID
@@ -329,7 +330,7 @@ class Arena:
                 alive -= 1
         if alive <= 1:
             self.END = True
-        if time.time()-self.time > 60:
+        if time.time()-self.time > 120:
             self.END = True
 
     def drawn(self):
