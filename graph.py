@@ -8,7 +8,7 @@ BLOCK_SIZE = 32
 PLAYER_SIZE = 28
 BOMB_SIZE = 30
 
-SCREEN_ON = True
+SCREEN_ON = False
 
 if SCREEN_ON:
     SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -450,9 +450,9 @@ class ArenaGraph:
                         image = GROUND[0]
                 elif matrix[i][j] == 'b':
                     image = ITEM_EXTRA_BOMB[0]
-                elif matrix[i][j] == 'p':
+                elif matrix[i][j] == 's':
                     image = ITEM_SPEED_INCREASE[0]
-                elif matrix[i][j] == 'f':
+                elif matrix[i][j] == 'p':
                     image = ITEM_BLAST_RADIUS[0]
                 SCREEN.blit(image, (offsetX+BLOCK_SIZE*i,offsetY+BLOCK_SIZE*j))
 

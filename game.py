@@ -4,7 +4,7 @@ from graph import ArenaGraph, PlayerGraph, BombGraph, BLOCK_SIZE, PLAYER_SIZE
 import pygame
 import time
 
-TIME_SPEED = 1
+TIME_SPEED = 60
 DEBUG = False
 DEBUG_PLAYER = 0
 
@@ -128,9 +128,9 @@ class Player:
         if item != None:
             if item == 'b':
                 self.max_bomb += 1
-            elif item == 'f':
-                self.bomb_power += 1
             elif item == 'p':
+                self.bomb_power += 1
+            elif item == 's':
                 self.speed += 1
         for bomb in self.BOMBS:
             bomb.update()
@@ -295,7 +295,7 @@ class Arena:
         return '-'
     
     def hasItem(self, X_POS, Y_POS):
-        if self.MATRIX[X_POS][Y_POS] == 'b' or self.MATRIX[X_POS][Y_POS] == 'f' or self.MATRIX[X_POS][Y_POS] == 'p':
+        if self.MATRIX[X_POS][Y_POS] == 'b' or self.MATRIX[X_POS][Y_POS] == 's' or self.MATRIX[X_POS][Y_POS] == 'p':
             item = self.MATRIX[X_POS][Y_POS]
             self.MATRIX[X_POS][Y_POS] = '-'
             return item
@@ -334,7 +334,7 @@ class Arena:
                 elif rand < 20:
                     self.MATRIX[X_POS][Y_POS] = 'p'
                 elif rand < 30:
-                    self.MATRIX[X_POS][Y_POS] = 'f'
+                    self.MATRIX[X_POS][Y_POS] = 's'
                 else:
                     self.MATRIX[X_POS][Y_POS] = '-'                
             return True

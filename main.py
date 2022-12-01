@@ -12,8 +12,8 @@ from graph import SCREEN_ON
 import numpy as np
 from threading import Thread
 
-#GAME_MODE = "IA_MODE"
-GAME_MODE = "HUMAN_MODE"
+GAME_MODE = "IA_MODE"
+#GAME_MODE = "HUMAN_MODE"
 
 pygame.init()
 
@@ -61,20 +61,22 @@ def run():
         os.makedirs("Output")
 
     #### Inicializar arquivo de log vazio
-    f = open("Output/log_{0:%y}_{0:%m}_{0:%d}_{0:%H}_{0:%M}.txt".format(now), "w")
+    log = "Output/log_{0:%y}_{0:%m}_{0:%d}.txt".format(now)
+    f = open(log, "w")
     f.write("")
     f.close()
     ####
 
     #### Inicializar tabela de valores
-    f = open("Output/table_{0:%y}_{0:%m}_{0:%d}_{0:%H}_{0:%M}.csv".format(now), "w")
+    table = "Output/table_{0:%y}_{0:%m}_{0:%d}.csv".format(now)
+    f = open(table, "w")
     f.write("Gen;Time;Best Score;First Place Generation;Second Place Generation;Third Place Generation\n")
     f.close()
     ####
     run = True
     player_result_list = []
     thread_list = []
-    arena_qtd = 1 # deve ter raiz quadrada inteira
+    arena_qtd = 400 # deve ter raiz quadrada inteira
     # top_qtd^2 = 4*arena_qtd
     # top_qtd = 2 * sqrt 
     top_qtd = int(2 * sqrt(arena_qtd))
@@ -86,6 +88,14 @@ def run():
     else:
         generation = 0
         while(run):
+            logFile = open(log, "w")
+            tableFile = open(table, "w")
+            if generation % 100:
+                logFile.write("Start generation {0}\n\n".format(generation))
+                for p in player_result_list:
+                    logFile.write(p)
+                logFile.write("\nEnd generation {0}\n\n".format(generation))
+                #tableFile.write("{0};{1};{2};{3};{4};{5};{6};{7}".format(generation, ))
             neural_list = create_run(player_result_list, arena_qtd, top_qtd)
             player_result_list = [None] * arena_qtd
             thread_list.clear()
