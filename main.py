@@ -14,6 +14,7 @@ from threading import Thread
 
 GAME_MODE = "IA_MODE"
 LOAD = True
+arena_qtd = 144
 #GAME_MODE = "HUMAN_MODE"
 
 pygame.init()
@@ -44,7 +45,7 @@ def playGame(modes, result, result_id):
         
         arena.check_end()
            
-        clock.tick(60 / TIME_SPEED)
+        clock.tick(60 * TIME_SPEED)
         if SCREEN_ON:
             pygame.display.update()
         
@@ -76,7 +77,7 @@ def run():
     run = True
     player_result_list = []
     thread_list = []
-    arena_qtd = 144 # deve ter raiz quadrada inteira
+    # arena deve ter raiz quadrada inteira
     # top_qtd^2 = 4*arena_qtd
     # top_qtd = 2 * sqrt 
     top_qtd = int(2 * sqrt(arena_qtd))
