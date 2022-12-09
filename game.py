@@ -4,7 +4,7 @@ from graph import ArenaGraph, PlayerGraph, BombGraph, BLOCK_SIZE, PLAYER_SIZE
 import pygame
 import time
 
-TIME_SPEED = 60
+TIME_SPEED = 10
 DEBUG = False
 DEBUG_PLAYER = 0
 
@@ -215,6 +215,9 @@ class Arena:
     MATRIX = []
     BOMBS = []
     PLAYERS = []
+    END_PHASE = False
+    END_TIMER = 0
+    END_COUNTER = 1
     END = False
 
     def __init__(self, WIDTH, HEIGHT):
@@ -252,7 +255,7 @@ class Arena:
                     self.MATRIX[i][j] = 'o'
 
     def checkDeath(self, X_POS, Y_POS):
-        if self.MATRIX[X_POS][Y_POS] == 'x':
+        if self.MATRIX[X_POS][Y_POS] == 'x' or self.MATRIX[X_POS][Y_POS] == 'o':
             return True
         return False
 
@@ -355,11 +358,21 @@ class Arena:
                 alive -= 1
         if alive <= 1:
             self.END = True
-        if pygame.time.get_ticks() - self.time >= 120000 / TIME_SPEED:
-            self.END = True
         if self.END == True:
             for p in self.PLAYERS:
                 p.SCORE += (pygame.time.get_ticks() - self.time) / 1000
+        if not(self.END_PHASE) and pygame.time.get_ticks() - self.time >= 120000 / TIME_SPEED:
+            self.END_PHASE = True
+            self.END_TIMER = pygame.time.get_ticks()
+        if self.END_PHASE:
+            if pygame.time.get_ticks() - self.END_TIMER >= 5000 / TIME_SPEED:
+                self.END_TIMER = pygame.time.get_ticks()
+
+                for vector in self.MATRIX:
+                    vector[self.END_COUNTER] = 'o'
+                    vector[self.HEIGHT - self.END_COUNTER + 1] = 'o'
+                self.END_COUNTER += 1
+
 
     def drawn(self):
         ArenaGraph.draw(self.MATRIX, self.WIDTH+2, self.HEIGHT+2)

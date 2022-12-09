@@ -53,36 +53,55 @@ class Neural(GameMode):
 
     def get_input(self):
         array = []
+        # Primeiro coloca o ID do jogador, 0-3
+        array.append(self.id)
         if self.arena != None:
-            array.append(self.arena.PLAYERS[self.id].X_ARENA_POS)
-            array.append(self.arena.PLAYERS[self.id].Y_ARENA_POS)
+            # Coloca as posições de cada jogador
+            for player in self.arena.PLAYERS:
+                array.append(player.X_ARENA_POS)
+                array.append(player.Y_ARENA_POS)
         else:
-            array.append(0)
-            array.append(0)
+            for i in range(4*2):
+                array.append(0)
         if self.clock != None:
             array.append(self.clock.get_time())
         else:
             array.append(0)
             
         for i in self.arena.MATRIX:
+            # Coloca cada objeto da arena
             for k in i:
-                if k == 'o':
-                    array.append(0)
-                elif k == '-':
+                if k == 'o':      # Verifica se tem bloco indestrutivel
                     array.append(1)
-                elif k == '*':
-                    array.append(2)
-                elif k == '0':
-                    array.append(3)
-                elif k == 'X':
-                    array.append(4)
-                elif k == 'b':
-                    array.append(5)
-                elif k == 'p':
-                    array.append(6)
-                elif k == 's':
-                    array.append(7)
                 else:
-                    array.append(5)
-
+                    array.append(0)
+                if k == '-':      # Verifica se tem espaço vazio
+                    array.append(1)
+                else:
+                    array.append(0)
+                if k == '*':      # Verifica se tem bloco quebravel
+                    array.append(1)
+                else:
+                    array.append(0)
+                if k == '0':      # Verifica se tem bomba
+                    array.append(1)
+                else:
+                    array.append(0)
+                if k == 'X':      # Verifica se tem explosão
+                    array.append(1)
+                else:
+                    array.append(0)
+                if k == 'b':      # Verifica se tem item bomba
+                    array.append(1)
+                else:
+                    array.append(0)
+                if k == 'p':      # Verifica se tem item fogo
+                    array.append(1)
+                else:
+                    array.append(0)
+                if k == 's':      # Verifica se tem item velocidade
+                    array.append(1)
+                else:
+                    array.append(0)
+        #print (len(array)*(len(array)/2)+(len(array)/2)*4)
         return self.inputSelector(array)

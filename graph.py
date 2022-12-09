@@ -1,14 +1,6 @@
 import pygame
 import os
-
-SCREEN_HEIGHT = 800
-SCREEN_WIDTH = 800
-
-BLOCK_SIZE = 32
-PLAYER_SIZE = 28
-BOMB_SIZE = 30
-
-SCREEN_ON = False
+from config import SCREEN_HEIGHT, SCREEN_WIDTH, BLOCK_SIZE, PLAYER_SIZE, BOMB_SIZE, SCREEN_ON
 
 def init_graph():
     SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))

@@ -10,11 +10,8 @@ from genetic import crossover
 from graph import SCREEN_ON, init_graph
 import numpy as np
 from threading import Thread
+from config import HUMAN_MODE, LOAD, ARENA_QTD, WEIGHTS_QTD 
 
-GAME_MODE = "IA_MODE"
-LOAD = False
-arena_qtd = 400
-#GAME_MODE = "HUMAN_MODE"
 
 pygame.init()
 
@@ -77,13 +74,13 @@ def run():
     player_result_list = []
     thread_list = []
     # arena deve ter raiz quadrada inteira
-    # top_qtd^2 = 4*arena_qtd
+    # top_qtd^2 = 4*ARENA_QTD
     # top_qtd = 2 * sqrt 
-    top_qtd = int(2 * sqrt(arena_qtd))
+    top_qtd = int(2 * sqrt(ARENA_QTD))
     best_score = -1000
     timer = pygame.time.get_ticks()
 
-    if GAME_MODE == "HUMAN_MODE":
+    if HUMAN_MODE:
         TIME_SPEED = 1
         SCREEN = init_graph()
         
@@ -98,8 +95,8 @@ def run():
             loadFile.close()
         
         while(run):
-            neural_list = create_run(player_result_list, arena_qtd, top_qtd)
-            player_result_list = [None] * arena_qtd
+            neural_list = create_run(player_result_list, ARENA_QTD, top_qtd)
+            player_result_list = [None] * ARENA_QTD
             thread_list.clear()
             i = 0
             for neuron in neural_list:
@@ -108,11 +105,11 @@ def run():
                 thread_list.append(t)
                 t.start()
                 i += 1
-                #print("Arena generation " + str(generation) + " Start : " + str(i) + " / " + str(arena_qtd))
+                #print("Arena generation " + str(generation) + " Start : " + str(i) + " / " + str(ARENA_QTD))
             aux_end = 1
             for thread in thread_list:
                 thread.join()
-                #print("Arena generation " + str(generation) + " End : " + str(aux_end) + " / " + str(arena_qtd))
+                #print("Arena generation " + str(generation) + " End : " + str(aux_end) + " / " + str(ARENA_QTD))
                 aux_end += 1
             error = filter_player_list(player_result_list)
             player_result_list.sort(reverse=True)
@@ -172,10 +169,10 @@ def filter_player_list(player_list):
         i += 1
     return error_qtd
 
-def create_run(player_list, arena_qtd, top_qtd):
+def create_run(player_list, ARENA_QTD, top_qtd):
     if player_list == []:
         neural_list = []
-        for k in range(arena_qtd):
+        for k in range(ARENA_QTD):
             neuron = []
             for j in range(4):
                 aux_list = []
@@ -201,8 +198,8 @@ def create_run(player_list, arena_qtd, top_qtd):
                 new_list += crossover(aux_list_1, aux_list_2, 0.1)
             new_list.append(aux_list_1)
             i += 1
-        if len(player_list) < arena_qtd:
-            for k in range(arena_qtd-len(player_list)):
+        if len(player_list) < ARENA_QTD:
+            for k in range(ARENA_QTD-len(player_list)):
                 neuron = []
                 for j in range(4):
                     aux_list = []
@@ -212,7 +209,7 @@ def create_run(player_list, arena_qtd, top_qtd):
         random.shuffle(new_list)
         aux = 0
         neural_final_list = []
-        for k in range(arena_qtd):
+        for k in range(ARENA_QTD):
             neuron = []
             for j in range(4):
                 neuron.append(new_list[aux])
