@@ -3,7 +3,6 @@ from math import atanh, sqrt
 import pygame
 import os
 import random
-import time
 from sys import exit
 from game import Arena, Player, HumanMode, TIME_SPEED
 from neural import Neural
@@ -13,8 +12,8 @@ import numpy as np
 from threading import Thread
 
 GAME_MODE = "IA_MODE"
-LOAD = True
-arena_qtd = 144
+LOAD = False
+arena_qtd = 400
 #GAME_MODE = "HUMAN_MODE"
 
 pygame.init()
@@ -95,7 +94,7 @@ def run():
         generation = 0
         if LOAD:
             loadFile = open("Output/best.save", "r")
-            generation, player_result_list = load_best(loadFile, top_qtd)
+            generation, best_score, player_result_list = load_best(loadFile, top_qtd)
             loadFile.close()
         
         while(run):
@@ -121,20 +120,22 @@ def run():
                 best_score = player_result_list[0][0]
             if generation % 20 == 0:
                 bestFile = open("Output/best.save", "w")
-                save_best(generation, player_result_list[0:top_qtd], bestFile)
+                save_best(generation, best_score, player_result_list[0:top_qtd], bestFile)
                 bestFile.close()
 
                 logFile.write("Start generation {0}\n\n".format(generation))
-                save_best(generation, player_result_list[0:top_qtd], logFile)
+                save_best(generation, best_score, player_result_list[0:top_qtd], logFile)
                 logFile.write("\nEnd generation {0}\n\n".format(generation))
-                tableFile.write("{0};{1};{2};{3};{4};{5}".format(generation, pygame.time.get_ticks()-timer, best_score, player_result_list[0][0], player_result_list[1][0], player_result_list[2][0]))
-            print("Gen {0} COMPLETE - {1} ERROR".format(generation, error))
+            genInfo = "{0};{1};{2};{3};{4};{5}\n".format(generation, pygame.time.get_ticks()-timer, best_score, player_result_list[0][0], player_result_list[1][0], player_result_list[2][0])
+            tableFile.write(genInfo)
+            print("Gen {0} COMPLETE - BEST SCORE TOTAL = {2} BEST SCORE GEN {0} = {3} - {1} ERROR".format(generation, error, best_score, player_result_list[0][0]))
             generation += 1
     logFile.close()
     tableFile.close()
 
-def save_best(generation, list, file):
+def save_best(generation, best_score, list, file):
     file.write(str(generation) + "\n")
+    file.write(str(best_score) + "\n")
     for it in range(len(list)):
         file.write(str(list[it][0]) + "\n")
         for value in list[it][1]:
@@ -143,9 +144,10 @@ def save_best(generation, list, file):
 
 def load_best(file, qtd):
     generation = int(file.readline())
+    best_score = float(file.readline())
     list = []
     for it in range(qtd):
-        score = int(file.readline())
+        score = float(file.readline())
         line = file.readline().split(' ')
         list_aux = []
         for l in line:
@@ -155,7 +157,7 @@ def load_best(file, qtd):
             except:
                 None
         list.append([score, list_aux])
-    return generation+1, list
+    return generation+1, best_score, list
 
 def filter_player_list(player_list):
     i = 0
@@ -209,7 +211,7 @@ def create_run(player_list, arena_qtd, top_qtd):
                     new_list.append(aux_list)
         random.shuffle(new_list)
         aux = 0
-        neural_final_list = []        
+        neural_final_list = []
         for k in range(arena_qtd):
             neuron = []
             for j in range(4):
@@ -218,7 +220,7 @@ def create_run(player_list, arena_qtd, top_qtd):
             neural_final_list.append(neuron)
         return neural_final_list
 
-run()
+run() 
 
 
 

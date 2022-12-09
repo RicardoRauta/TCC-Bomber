@@ -180,7 +180,7 @@ class Bomb:
         if left == 0 or self.OWNER.ARENA.hasBlockPosition(x, y) == 'o':
             return
         if self.OWNER.ARENA.checkBrickDestroy(x,y,self.step==34):
-            self.OWNER.SCORE += 1
+            self.OWNER.SCORE += 2
             BombGraph.explosion_draw(x ,y,self.step, "block", 0,self.OWNER.ARENA.WIDTH, self.OWNER.ARENA.HEIGHT)
             return
 
@@ -357,6 +357,9 @@ class Arena:
             self.END = True
         if pygame.time.get_ticks() - self.time >= 120000 / TIME_SPEED:
             self.END = True
+        if self.END == True:
+            for p in self.PLAYERS:
+                p.SCORE += (pygame.time.get_ticks() - self.time) / 1000
 
     def drawn(self):
         ArenaGraph.draw(self.MATRIX, self.WIDTH+2, self.HEIGHT+2)
