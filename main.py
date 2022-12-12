@@ -95,7 +95,7 @@ def run():
             loadFile.close()
         
         while(run):
-            neural_list = create_run(player_result_list, ARENA_QTD, top_qtd)
+            neural_list = create_run_global(player_result_list, top_qtd)
             player_result_list = [None] * ARENA_QTD
             thread_list.clear()
             i = 0
@@ -163,20 +163,20 @@ def filter_player_list(player_list):
         if p == None:
             error_qtd += 1
             aux_list = []
-            for aux in range(7502):
+            for aux in range(WEIGHTS_QTD):
                 aux_list.append(random.randint(-500, 500))
             player_list[i] = [-1, aux_list]
         i += 1
     return error_qtd
 
-def create_run(player_list, ARENA_QTD, top_qtd):
+def create_run(player_list, top_qtd):
     if player_list == []:
         neural_list = []
         for k in range(ARENA_QTD):
             neuron = []
             for j in range(4):
                 aux_list = []
-                for i in range(7502):
+                for i in range(WEIGHTS_QTD):
                     aux_list.append(random.randint(-500, 500))
                 neuron.append(aux_list)
             neural_list.append(neuron)
@@ -203,7 +203,7 @@ def create_run(player_list, ARENA_QTD, top_qtd):
                 neuron = []
                 for j in range(4):
                     aux_list = []
-                    for i in range(7502):
+                    for i in range(WEIGHTS_QTD):
                         aux_list.append(random.randint(-500, 500))
                     new_list.append(aux_list)
         random.shuffle(new_list)
@@ -216,6 +216,75 @@ def create_run(player_list, ARENA_QTD, top_qtd):
                 aux += 1
             neural_final_list.append(neuron)
         return neural_final_list
+
+def create_run_global(player_list, top_qtd):
+    thread_list = []
+    neural_list = []
+    print("Begin creating generation")
+    for id in range(4 * ARENA_QTD):
+        neural_list.append(None)
+    if player_list == []:
+        for id in range(4 * ARENA_QTD):
+            t = Thread(target=create_random_weights, args=[neural_list, id])
+            thread_list.append(t)
+            t.start()
+    else:
+        top_list = []
+        for id in range(top_qtd):
+            neural_list.append(player_list[id][1])
+            top_list.append(player_list[id][1])
+        position = top_qtd
+        for id in range(top_qtd):
+            qtd_to_add = 2 * (top_qtd-id-1) 
+            t = Thread(target=create_run_thread, args=[neural_list, top_list, id, position, qtd_to_add])
+            position += qtd_to_add
+            thread_list.append(t)
+            t.start()
+    waiting = True
+    while(waiting):
+        waiting = False
+        for neuron in neural_list:
+            if neuron == None:
+                waiting = True
+                break
+    random.shuffle(neural_list)
+    neural_final_list = []
+    aux = 0
+    for k in range(ARENA_QTD):
+        neuron = []
+        for j in range(4):
+            neuron.append(neural_list[aux])
+            aux += 1
+        neural_final_list.append(neuron)
+    print("End creating generation")
+    return neural_final_list
+
+def create_random_weights(neural_list, id):
+    while(neural_list[id] == None):
+        neuron = []
+        for i in range(WEIGHTS_QTD):
+            neuron.append(random.randint(-500, 500))
+        neural_list[id] = neuron
+
+def create_run_thread(neural_list, top_list, id, position, qtd_to_add):
+    check = False
+    print("Start ID {0}".format(id))
+    if len(top_list) - 1 == id:
+        return
+    while(not(check)):
+        print("Running ID {0}".format(id))
+        new_list = []
+        for top in top_list[id:len(top_list)]:
+            if top != top_list[id]:
+                new_list += crossover(top_list[id], top, 0.1)
+        for pos in range(qtd_to_add):
+            neural_list[pos + position] = new_list[pos]
+        check = True
+        for pos in range(qtd_to_add):
+            if neural_list[pos + position] == None:
+                check = False
+                break
+    print("End ID {0}".format(id))
 
 run() 
 
