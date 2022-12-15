@@ -220,14 +220,13 @@ def create_run(player_list, top_qtd):
 def create_run_global(player_list, top_qtd):
     thread_list = []
     neural_list = []
+    values = []
     print("Begin creating generation")
     for id in range(4 * ARENA_QTD):
         neural_list.append(None)
     if player_list == []:
         for id in range(4 * ARENA_QTD):
-            t = Thread(target=create_random_weights, args=[neural_list, id])
-            thread_list.append(t)
-            t.start()
+            values.append([neural_list, id])
     else:
         top_list = []
         for id in range(top_qtd):
@@ -235,18 +234,51 @@ def create_run_global(player_list, top_qtd):
             top_list.append(player_list[id][1])
         position = top_qtd
         for id in range(top_qtd):
-            qtd_to_add = 2 * (top_qtd-id-1) 
-            t = Thread(target=create_run_thread, args=[neural_list, top_list, id, position, qtd_to_add])
+            qtd_to_add = 2 * (top_qtd-id-1)
+            #print("{0} {1}".format(id, qtd_to_add))
+            values.append([neural_list, top_list, id, position, qtd_to_add])
             position += qtd_to_add
-            thread_list.append(t)
-            t.start()
-    waiting = True
-    while(waiting):
-        waiting = False
+    
+    #waiting = True
+    #while(waiting):
+    #    waiting = False
+    #    for neuron in neural_list:
+    #        if neuron == None:
+    #            waiting = True
+    #            break
+    none_values = 0
+    Error = True
+    while Error:
+        neural_list.clear()
+        for id in range(4 * ARENA_QTD):
+            neural_list.append(None)
+        thread_list.clear()
+        if player_list == []:
+            for id in range(4 * ARENA_QTD):
+                t = Thread(target=create_random_weights, args=values[id])
+                thread_list.append(t)
+                t.start()
+        else:
+            for id in range(top_qtd):
+                neural_list[id] = top_list[id]
+            for id in range(top_qtd):
+                t = Thread(target=create_run_thread, args=values[id])
+                thread_list.append(t)
+                t.start()
+        for thread in thread_list:
+            thread.join()
+        none_values = 0
+        id = 0
         for neuron in neural_list:
+            id += 1
             if neuron == None:
-                waiting = True
-                break
+                none_values += 1
+                #print("ERROR ID = {0}".format(id))
+        print("{0} values error".format(none_values))
+        if none_values > 0:
+            continue
+        else:
+            Error = False
     random.shuffle(neural_list)
     neural_final_list = []
     aux = 0
@@ -268,11 +300,9 @@ def create_random_weights(neural_list, id):
 
 def create_run_thread(neural_list, top_list, id, position, qtd_to_add):
     check = False
-    print("Start ID {0}".format(id))
     if len(top_list) - 1 == id:
         return
     while(not(check)):
-        print("Running ID {0}".format(id))
         new_list = []
         for top in top_list[id:len(top_list)]:
             if top != top_list[id]:
@@ -284,7 +314,7 @@ def create_run_thread(neural_list, top_list, id, position, qtd_to_add):
             if neural_list[pos + position] == None:
                 check = False
                 break
-    print("End ID {0}".format(id))
+        
 
 run() 
 
