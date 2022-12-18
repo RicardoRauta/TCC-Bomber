@@ -1,3 +1,6 @@
+from os import environ
+environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
+
 import datetime
 from math import atanh, sqrt
 import pygame
@@ -9,13 +12,12 @@ from neural import Neural
 from genetic import crossover
 from graph import SCREEN_ON, init_graph
 import numpy as np
-from threading import Thread
-from config import HUMAN_MODE, LOAD, ARENA_QTD, WEIGHTS_QTD 
-
+import multiprocessing
+from config import HUMAN_MODE, LOAD, ARENA_QTD, WEIGHTS_QTD, CPU_CORE
 
 pygame.init()
 
-def playGame(modes, result, result_id):
+def playGame(modes):
     arena = Arena(9,9)
     clock = pygame.time.Clock()
     for mode in modes:
@@ -53,7 +55,7 @@ def playGame(modes, result, result_id):
         if p.SCORE > MAX_SCORE:
             MAX_SCORE = p.SCORE
             weight = p.MODE.weight
-    result[result_id] = [MAX_SCORE, weight]
+    #result[result_id] = [MAX_SCORE, weight]
     return [MAX_SCORE, weight]
 
 def run():
@@ -83,8 +85,7 @@ def run():
             loadFile.close()
             modes = [HumanMode(), Neural(neuron[0][1], 1), Neural(neuron[1][1], 2), Neural(neuron[2][1], 3)]
         
-        player_result_list = [None]
-        playGame(modes, player_result_list, 0)
+        playGame(modes)
     else:
         #### Inicializar arquivo de log vazio
         log = "Output/log_{0:%y}_{0:%m}_{0:%d}.txt".format(now)
@@ -102,24 +103,22 @@ def run():
             loadFile = open("Output/best.save", "r")
             generation, best_score, player_result_list = load_best(loadFile, top_qtd)
             loadFile.close()
-        
+        pool = multiprocessing.Pool(CPU_CORE)
+        player_result_list = []
         while(run):
-            neural_list = create_run_global(player_result_list, top_qtd)
-            player_result_list = [None] * ARENA_QTD
+            print("Creating generation {0}".format(generation))
+            neural_list = create_run_global(player_result_list, top_qtd, pool)
+
             thread_list.clear()
-            i = 0
+            input_multicore = []
             for neuron in neural_list:
                 neuron_player_list = [Neural(neuron[0], 0), Neural(neuron[1], 1), Neural(neuron[2], 2), Neural(neuron[3], 3)]
-                t = Thread(target=playGame, args=[neuron_player_list, player_result_list, i])
-                thread_list.append(t)
-                t.start()
-                i += 1
-                #print("Arena generation " + str(generation) + " Start : " + str(i) + " / " + str(ARENA_QTD))
-            aux_end = 1
-            for thread in thread_list:
-                thread.join()
-                #print("Arena generation " + str(generation) + " End : " + str(aux_end) + " / " + str(ARENA_QTD))
-                aux_end += 1
+                input_multicore.append(neuron_player_list)
+                #print("Arena generation " + str(generation) + " Start : " + str(i) + " / " + str(ARENA_QTD)) 
+            player_result_list.clear()
+            #print(input_multicore)
+            print("Running generation {0}".format(generation))
+            player_result_list = pool.map(playGame, input_multicore)
             error = filter_player_list(player_result_list)
             player_result_list.sort(reverse=True)
             if player_result_list[0][0] > best_score:
@@ -227,15 +226,12 @@ def create_run(player_list, top_qtd):
             neural_final_list.append(neuron)
         return neural_final_list
 
-def create_run_global(player_list, top_qtd):
-    thread_list = []
+def create_run_global(player_list, top_qtd, pool):
     neural_list = []
-    values = []
-    for id in range(4 * ARENA_QTD):
-        neural_list.append(None)
+    input_multicore = []
     if player_list == []:
         for id in range(4 * ARENA_QTD):
-            values.append([neural_list, id])
+            input_multicore.append([id])
     else:
         top_list = []
         for id in range(top_qtd):
@@ -245,49 +241,27 @@ def create_run_global(player_list, top_qtd):
         for id in range(top_qtd):
             qtd_to_add = 2 * (top_qtd-id-1)
             #print("{0} {1}".format(id, qtd_to_add))
-            values.append([neural_list, top_list, id, position, qtd_to_add])
+            input_multicore.append([top_list, id])
             position += qtd_to_add
-    
-    #waiting = True
-    #while(waiting):
-    #    waiting = False
-    #    for neuron in neural_list:
-    #        if neuron == None:
-    #            waiting = True
-    #            break
-    none_values = 0
-    Error = True
-    while Error:
-        neural_list.clear()
-        for id in range(4 * ARENA_QTD):
-            neural_list.append(None)
-        thread_list.clear()
-        if player_list == []:
-            for id in range(4 * ARENA_QTD):
-                t = Thread(target=create_random_weights, args=values[id])
-                thread_list.append(t)
-                t.start()
-        else:
-            for id in range(top_qtd):
-                neural_list[id] = top_list[id]
-            for id in range(top_qtd):
-                t = Thread(target=create_run_thread, args=values[id])
-                thread_list.append(t)
-                t.start()
-        for thread in thread_list:
-            thread.join()
-        none_values = 0
-        id = 0
-        for neuron in neural_list:
-            id += 1
-            if neuron == None:
-                none_values += 1
-                #print("ERROR ID = {0}".format(id))
-        #print("{0} values error".format(none_values))
-        if none_values > 0:
-            continue
-        else:
-            Error = False
+    if player_list == []:
+        neural_list = pool.map(create_random_weights, input_multicore)
+    else:
+        result = pool.map(create_run_thread, input_multicore)
+        
+        for list in result:
+            for neuron in list:
+                neural_list.append(neuron)
+        for id in range(top_qtd):
+            neural_list.append(top_list[id])
+    #none_values = 0
+    #id = 0
+    #for neuron in neural_list:
+    #    id += 1
+    #    if neuron == None:
+    #        none_values += 1
+    #        print("ERROR ID = {0}".format(id))
+    #print("{0} values error".format(none_values))
+
     random.shuffle(neural_list)
     neural_final_list = []
     aux = 0
@@ -299,32 +273,24 @@ def create_run_global(player_list, top_qtd):
         neural_final_list.append(neuron)
     return neural_final_list
 
-def create_random_weights(neural_list, id):
-    while(neural_list[id] == None):
-        neuron = []
-        for i in range(WEIGHTS_QTD):
-            neuron.append(random.randint(-500, 500))
-        neural_list[id] = neuron
+def create_random_weights(id):
+    neuron = []
+    for i in range(WEIGHTS_QTD):
+        neuron.append(random.randint(-500, 500))
+    return neuron
 
-def create_run_thread(neural_list, top_list, id, position, qtd_to_add):
-    check = False
+def create_run_thread(input):
+    top_list, id = input
     if len(top_list) - 1 == id:
-        return
-    while(not(check)):
-        new_list = []
-        for top in top_list[id:len(top_list)]:
-            if top != top_list[id]:
-                new_list += crossover(top_list[id], top, 0.1)
-        for pos in range(qtd_to_add):
-            neural_list[pos + position] = new_list[pos]
-        check = True
-        for pos in range(qtd_to_add):
-            if neural_list[pos + position] == None:
-                check = False
-                break
+        return []
+    new_list = []
+    for top in top_list[id:len(top_list)]:
+        if top != top_list[id]:
+            new_list += crossover(top_list[id], top, 0.1)
+    return new_list
         
-
-run() 
+if __name__ == '__main__':
+    run() 
 
 
 

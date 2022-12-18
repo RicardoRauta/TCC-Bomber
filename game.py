@@ -1,11 +1,10 @@
 import random
 import numpy as np
 from graph import ArenaGraph, PlayerGraph, BombGraph, BLOCK_SIZE, PLAYER_SIZE
-from config import SCORE_BOMB, SCORE_BRICK, SCORE_KILL_PLAYER, SCORE_SELF_KILL
+from config import SCORE_BOMB, SCORE_BRICK, SCORE_KILL_PLAYER, SCORE_SELF_KILL, TIME_SPEED
 import pygame
 import time
 
-TIME_SPEED = 1
 DEBUG = False
 DEBUG_PLAYER = 0
 
@@ -77,6 +76,9 @@ class Player:
         self.Y_ARENA_POS = (self.Y_POS + PLAYER_SIZE/2) / BLOCK_SIZE + 1
         if DEBUG and self.ID == DEBUG_PLAYER:
             print([self.X_ARENA_POS, self.Y_ARENA_POS])
+
+        if self.ARENA.checkDeath(int(self.X_ARENA_POS), int(self.Y_ARENA_POS)):
+            self.die()
 
         if not self.death:
             for k in range(self.speed):
@@ -266,7 +268,7 @@ class Arena:
                     self.MATRIX[i][j] = 'o'
 
     def checkDeath(self, X_POS, Y_POS):
-        if self.MATRIX[X_POS][Y_POS] == 'x' or self.MATRIX[X_POS][Y_POS] == 'o':
+        if self.MATRIX[X_POS][Y_POS] == 'o':
             return True
         return False
 
@@ -375,7 +377,7 @@ class Arena:
         if not(self.END_PHASE) and pygame.time.get_ticks() - self.time >= 120000 / TIME_SPEED:
             self.END_PHASE = True
             self.END_TIMER = pygame.time.get_ticks()
-        if self.END_PHASE:
+        if self.END_PHASE and self.END_COUNTER <= self.HEIGHT - 1:
             if pygame.time.get_ticks() - self.END_TIMER >= 5000 / TIME_SPEED:
                 self.END_TIMER = pygame.time.get_ticks()
 
