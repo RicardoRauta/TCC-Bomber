@@ -1,10 +1,11 @@
 import random
 import numpy as np
 from graph import ArenaGraph, PlayerGraph, BombGraph, BLOCK_SIZE, PLAYER_SIZE
+from config import SCORE_BOMB, SCORE_BRICK, SCORE_KILL_PLAYER, SCORE_SELF_KILL
 import pygame
 import time
 
-TIME_SPEED = 10
+TIME_SPEED = 1
 DEBUG = False
 DEBUG_PLAYER = 0
 
@@ -77,10 +78,6 @@ class Player:
         if DEBUG and self.ID == DEBUG_PLAYER:
             print([self.X_ARENA_POS, self.Y_ARENA_POS])
 
-        if self.ARENA.checkDeath(int(self.X_ARENA_POS), int(self.Y_ARENA_POS)):
-            self.graph.is_death = True
-            self.death = True
-
         if not self.death:
             for k in range(self.speed):
                 if inputs[0] == 1:
@@ -120,6 +117,7 @@ class Player:
                             self.graph.update("K_LEFT", self.X_POS, self.Y_POS)
             if inputs[3] == 1 and len(self.BOMBS) < self.max_bomb:
                 if self.ARENA.hasBlockPosition(self.X_ARENA_POS, self.Y_ARENA_POS) == '-':
+                    self.SCORE += SCORE_BOMB
                     self.BOMBS.append(Bomb(self))
                     self.place_bomb = True
         if self.ARENA.hasBlockGlobal(self.X_POS, self.Y_POS) == '-':
@@ -135,6 +133,10 @@ class Player:
         for bomb in self.BOMBS:
             bomb.update()
         self.drawn()
+    
+    def die(self):
+        self.graph.is_death = True
+        self.death = True
 
     def drawn(self):
         self.graph.draw(self.ARENA.WIDTH, self.ARENA.HEIGHT)
@@ -164,7 +166,7 @@ class Bomb:
                 self.explode()
         elif self.exist:
             if self.OWNER.ARENA.checkBrickDestroy(self.X_POS, self.Y_POS,self.step==34):
-                self.OWNER.SCORE += 1
+                self.OWNER.SCORE += SCORE_BRICK
             BombGraph.explosion_draw(self.X_POS,self.Y_POS,self.step, "start", 0,self.OWNER.ARENA.WIDTH, self.OWNER.ARENA.HEIGHT)
             self.explosionRec("x+", self.X_POS + 1, self.Y_POS, self.bomb_power)
             self.explosionRec("y-", self.X_POS, self.Y_POS - 1, self.bomb_power)
@@ -179,8 +181,17 @@ class Bomb:
     def explosionRec(self, dir, x, y, left):
         if left == 0 or self.OWNER.ARENA.hasBlockPosition(x, y) == 'o':
             return
+        for p in self.OWNER.ARENA.PLAYERS:
+            if not p.death and int(p.X_ARENA_POS) == x and int(p.Y_ARENA_POS) == y:
+                if p == self.OWNER:
+                    #print("Self KILL")
+                    p.SCORE += SCORE_SELF_KILL
+                else:
+                    #print("Kill Player")
+                    p.SCORE += SCORE_KILL_PLAYER
+                p.die()
         if self.OWNER.ARENA.checkBrickDestroy(x,y,self.step==34):
-            self.OWNER.SCORE += 2
+            self.OWNER.SCORE += SCORE_BRICK
             BombGraph.explosion_draw(x ,y,self.step, "block", 0,self.OWNER.ARENA.WIDTH, self.OWNER.ARENA.HEIGHT)
             return
 

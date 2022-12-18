@@ -1,5 +1,6 @@
 from math import exp
 from game import Arena, GameMode
+from config import NEURONS
 
 def sigmoid(x):
     if x >= 0:
@@ -26,7 +27,7 @@ class Neural(GameMode):
 
     def inputSelector(self, array):
         
-        op = self.neuronsOp(array, [121, 60, 4], [sigmoid, degrau]) # Total = 7260+240 = 7500
+        op = self.neuronsOp(array, NEURONS, [sigmoid, degrau]) # Total = 7260+240 = 7500
         
         return op
 
@@ -103,5 +104,5 @@ class Neural(GameMode):
                     array.append(1)
                 else:
                     array.append(0)
-        #print (len(array)*(len(array)/2)+(len(array)/2)*4)
+        #print ("{0} {1} {2} {3}".format(len(array), len(array)/2, 4, len(array)*(len(array)/2)+(len(array)/2)*4))
         return self.inputSelector(array)

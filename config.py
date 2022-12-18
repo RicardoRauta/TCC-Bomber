@@ -1,8 +1,9 @@
 HUMAN_MODE = False
 LOAD = False
-ARENA_QTD = 100
-#WEIGHTS_QTD = 480198
-WEIGHTS_QTD = 7502
+ARENA_QTD = 900
+
+NEURONS = [978, 489, 4] # 978 * 489 + 489 * 4 = 480198
+WEIGHTS_QTD = 480198
 
 SCREEN_ON = False
 
@@ -12,3 +13,13 @@ SCREEN_WIDTH = 800
 BLOCK_SIZE = 32
 PLAYER_SIZE = 28
 BOMB_SIZE = 30
+
+# Pontuação:
+# Colocou bomba    5
+SCORE_BOMB = 5
+# Destruiu bloco   1
+SCORE_BRICK = 5
+# Se explodiu
+SCORE_SELF_KILL = -20
+# Explodiu oponente
+SCORE_KILL_PLAYER = 20

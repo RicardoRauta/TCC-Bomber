@@ -40,17 +40,21 @@ def playGame(modes, result, result_id):
             player.update()
         
         arena.check_end()
-           
+        
         clock.tick(60 * TIME_SPEED)
         if SCREEN_ON:
             pygame.display.update()
         
         #if clock.get_time() > 10:
         #    return
+    MAX_SCORE = -1000
+    weight = None
     for p in players:
-        if not p.death:
-            result[result_id] = [p.SCORE ,p.MODE.weight]
-            return [p.SCORE ,p.MODE.weight]
+        if p.SCORE > MAX_SCORE:
+            MAX_SCORE = p.SCORE
+            weight = p.MODE.weight
+    result[result_id] = [MAX_SCORE, weight]
+    return [MAX_SCORE, weight]
 
 def run():
     global SCREEN
@@ -59,17 +63,6 @@ def run():
     if not os.path.exists("Output"):
         os.makedirs("Output")
 
-    #### Inicializar arquivo de log vazio
-    log = "Output/log_{0:%y}_{0:%m}_{0:%d}.txt".format(now)
-    logFile = open(log, "w")
-    logFile.write("")
-    ####
-
-    #### Inicializar tabela de valores
-    table = "Output/table_{0:%y}_{0:%m}_{0:%d}.csv".format(now)
-    tableFile = open(table, "w")
-    tableFile.write("Gen;Time;Best Score;First Place Generation Score;Second Place Generation Score;Third Place Generation Score\n")
-    ####
     run = True
     player_result_list = []
     thread_list = []
@@ -83,11 +76,27 @@ def run():
     if HUMAN_MODE:
         TIME_SPEED = 1
         SCREEN = init_graph()
-        
         modes = [HumanMode(), HumanMode(), HumanMode(), HumanMode()]
+        if LOAD:
+            loadFile = open("Output/best.save", "r")
+            generation, best_score, neuron = load_best(loadFile, top_qtd)
+            loadFile.close()
+            modes = [HumanMode(), Neural(neuron[0][1], 1), Neural(neuron[1][1], 2), Neural(neuron[2][1], 3)]
+        
         player_result_list = [None]
         playGame(modes, player_result_list, 0)
     else:
+        #### Inicializar arquivo de log vazio
+        log = "Output/log_{0:%y}_{0:%m}_{0:%d}.txt".format(now)
+        logFile = open(log, "w")
+        logFile.write("")
+        ####
+
+        #### Inicializar tabela de valores
+        table = "Output/table_{0:%y}_{0:%m}_{0:%d}.csv".format(now)
+        tableFile = open(table, "w")
+        tableFile.write("Gen;Time;Best Score;First Place Generation Score;Second Place Generation Score;Third Place Generation Score\n")
+        ####
         generation = 0
         if LOAD:
             loadFile = open("Output/best.save", "r")
@@ -127,8 +136,9 @@ def run():
             tableFile.write(genInfo)
             print("Gen {0} COMPLETE - BEST SCORE TOTAL = {2} BEST SCORE GEN {0} = {3} - {1} ERROR".format(generation, error, best_score, player_result_list[0][0]))
             generation += 1
-    logFile.close()
-    tableFile.close()
+            
+        logFile.close()
+        tableFile.close()
 
 def save_best(generation, best_score, list, file):
     file.write(str(generation) + "\n")
@@ -221,7 +231,6 @@ def create_run_global(player_list, top_qtd):
     thread_list = []
     neural_list = []
     values = []
-    print("Begin creating generation")
     for id in range(4 * ARENA_QTD):
         neural_list.append(None)
     if player_list == []:
@@ -274,7 +283,7 @@ def create_run_global(player_list, top_qtd):
             if neuron == None:
                 none_values += 1
                 #print("ERROR ID = {0}".format(id))
-        print("{0} values error".format(none_values))
+        #print("{0} values error".format(none_values))
         if none_values > 0:
             continue
         else:
@@ -288,7 +297,6 @@ def create_run_global(player_list, top_qtd):
             neuron.append(neural_list[aux])
             aux += 1
         neural_final_list.append(neuron)
-    print("End creating generation")
     return neural_final_list
 
 def create_random_weights(neural_list, id):
