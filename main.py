@@ -123,14 +123,13 @@ def run():
             player_result_list.sort(reverse=True)
             if player_result_list[0][0] > best_score:
                 best_score = player_result_list[0][0]
-            if generation % 20 == 0:
-                bestFile = open("Output/best.save", "w")
-                save_best(generation, best_score, player_result_list[0:top_qtd], bestFile)
-                bestFile.close()
-
-                logFile.write("Start generation {0}\n\n".format(generation))
-                save_best(generation, best_score, player_result_list[0:top_qtd], logFile)
-                logFile.write("\nEnd generation {0}\n\n".format(generation))
+            
+            bestFile = open("Output/best.save", "w")
+            save_best(generation, best_score, player_result_list[0:top_qtd], bestFile)
+            bestFile.close()
+            logFile.write("Start generation {0}\n\n".format(generation))
+            save_best(generation, best_score, player_result_list[0:top_qtd], logFile)
+            logFile.write("\nEnd generation {0}\n\n".format(generation))
             genInfo = "{0};{1};{2};{3};{4};{5}\n".format(generation, pygame.time.get_ticks()-timer, best_score, player_result_list[0][0], player_result_list[1][0], player_result_list[2][0])
             tableFile.write(genInfo)
             print("Gen {0} COMPLETE - BEST SCORE TOTAL = {2} BEST SCORE GEN {0} = {3} - {1} ERROR".format(generation, error, best_score, player_result_list[0][0]))
