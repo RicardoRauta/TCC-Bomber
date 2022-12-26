@@ -1,6 +1,6 @@
 from math import exp
 from game import Arena, GameMode
-from config import NEURONS
+from config import NEURONS, SENSOR_TOTAL
 
 def sigmoid(x):
     if x >= 0:
@@ -54,55 +54,88 @@ class Neural(GameMode):
 
     def get_input(self):
         array = []
-        # Primeiro coloca o ID do jogador, 0-3
+        if self.clock != None:
+            array.append(self.clock.get_time())
+        else:
+            array.append(0)
+            
+        if SENSOR_TOTAL:
+            array += self.getTotaVisionlArena()
+        else:
+            array += self.getLimitedVisionArena()
+        
+        print ("{0} {1} {2} {3}".format(len(array), len(array)/2, 4, len(array)*(len(array)/2)+(len(array)/2)*4))
+        return self.inputSelector(array)
+
+    def getTotaVisionlArena(self):
+        array = []
+         # Primeiro coloca o ID do jogador, 0-3
         array.append(self.id)
+        # Coloca as posições de cada jogador
         if self.arena != None:
-            # Coloca as posições de cada jogador
             for player in self.arena.PLAYERS:
                 array.append(player.X_ARENA_POS)
                 array.append(player.Y_ARENA_POS)
         else:
             for i in range(4*2):
                 array.append(0)
-        if self.clock != None:
-            array.append(self.clock.get_time())
+        # Coloca cada objeto da arena
+        for k in self.arena.MATRIX:
+            array += self.sensorValues(k)
+        return array
+
+    def getLimitedVisionArena(self):
+        player = self.arena.PLAYERS[self.id]
+
+        y_player = (int) (player.Y_ARENA_POS)
+        x_player = (int) (player.X_ARENA_POS)
+        
+        array = []
+
+        for x in range(self.arena.WIDTH):
+            auxX = x - x_player
+            for y in range(self.arena.HEIGHT):
+                auxY = y - y_player
+                if auxX >= -2 and auxX <= 2 and auxY >= -2 and auxY <= 2:
+                    array += self.sensorValues(self.arena.getObjectInPosition(x, y))
+
+        # todo: aqui to gerando a visão cubo, falta adicionar a visão livre
+        return array
+
+    def sensorValues(self, obj):
+        if obj == None:
+            return None
+        array = []
+        if obj == 'o':      # Verifica se tem bloco indestrutivel
+            array.append(1)
         else:
             array.append(0)
-            
-        for i in self.arena.MATRIX:
-            # Coloca cada objeto da arena
-            for k in i:
-                if k == 'o':      # Verifica se tem bloco indestrutivel
-                    array.append(1)
-                else:
-                    array.append(0)
-                if k == '-':      # Verifica se tem espaço vazio
-                    array.append(1)
-                else:
-                    array.append(0)
-                if k == '*':      # Verifica se tem bloco quebravel
-                    array.append(1)
-                else:
-                    array.append(0)
-                if k == '0':      # Verifica se tem bomba
-                    array.append(1)
-                else:
-                    array.append(0)
-                if k == 'X':      # Verifica se tem explosão
-                    array.append(1)
-                else:
-                    array.append(0)
-                if k == 'b':      # Verifica se tem item bomba
-                    array.append(1)
-                else:
-                    array.append(0)
-                if k == 'p':      # Verifica se tem item fogo
-                    array.append(1)
-                else:
-                    array.append(0)
-                if k == 's':      # Verifica se tem item velocidade
-                    array.append(1)
-                else:
-                    array.append(0)
-        #print ("{0} {1} {2} {3}".format(len(array), len(array)/2, 4, len(array)*(len(array)/2)+(len(array)/2)*4))
-        return self.inputSelector(array)
+        if obj == '-':      # Verifica se tem espaço vazio
+            array.append(1)
+        else:
+            array.append(0)
+        if obj == '*':      # Verifica se tem bloco quebravel
+            array.append(1)
+        else:
+            array.append(0)
+        if obj == '0':      # Verifica se tem bomba
+            array.append(1)
+        else:
+            array.append(0)
+        if obj == 'X':      # Verifica se tem explosão
+            array.append(1)
+        else:
+            array.append(0)
+        if obj == 'b':      # Verifica se tem item bomba
+            array.append(1)
+        else:
+            array.append(0)
+        if obj == 'p':      # Verifica se tem item fogo
+            array.append(1)
+        else:
+            array.append(0)
+        if obj == 's':      # Verifica se tem item velocidade
+            array.append(1)
+        else:
+            array.append(0)
+        return array

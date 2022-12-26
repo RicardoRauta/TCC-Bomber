@@ -238,12 +238,19 @@ class Arena:
         self.MATRIX = HEIGHT
         self.createMatrix()
         self.time = pygame.time.get_ticks()
+
     def onEdge(self, positionX, positionY):
         if positionX == 0 or positionX == self.WIDTH+1:
             return True
         if positionY == 0 or positionY == self.HEIGHT+1:
             return True
         return False
+
+    def getObjectInPosition(self, positionX, positionY):
+        if positionX < 0 or positionX > self.WIDTH+1 or positionY < 0 or positionY > self.HEIGHT+1:
+            return None
+        else:
+            return self.MATRIX[positionX][positionY]
 
     def createMatrix(self):
         self.MATRIX = []
