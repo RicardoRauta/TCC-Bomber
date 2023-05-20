@@ -57,11 +57,11 @@ class DecisionTree():
             auxX = x_player - 1 + x
             for y in range(self.arena.HEIGHT):
                 if self.arena.getObjectInPosition(auxX, y) == object:
-                        return True
+                        return [True, auxX, y]
         for x in range(self.arena.WIDTH):
             if not(x == x_player - 1 or x == x_player or x == x_player + 1):
                 for y in range(3):
                     auxY = y_player - 1 + y
                     if self.arena.getObjectInPosition(x, auxY) == object:
-                        return True
-        return False
+                        return [True, x, auxY]
+        return [False, 0, 0]

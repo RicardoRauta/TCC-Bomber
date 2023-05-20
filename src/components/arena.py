@@ -162,11 +162,11 @@ class Arena:
         if self.END == True:
             for p in self.PLAYERS:
                 p.SCORE += (pygame.time.get_ticks() - self.time) / 1000
-        if not(self.END_PHASE) and pygame.time.get_ticks() - self.time >= 120000 / Config.TIME_SPEED:
+        if not(self.END_PHASE) and pygame.time.get_ticks() - self.time >= 120000:
             self.END_PHASE = True
             self.END_TIMER = pygame.time.get_ticks()
         if self.END_PHASE and self.END_COUNTER <= self.HEIGHT - 1:
-            if pygame.time.get_ticks() - self.END_TIMER >= 5000 / Config.TIME_SPEED:
+            if pygame.time.get_ticks() - self.END_TIMER >= 5000:
                 self.END_TIMER = pygame.time.get_ticks()
 
                 for vector in self.MATRIX:

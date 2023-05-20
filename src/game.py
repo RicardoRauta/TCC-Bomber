@@ -20,7 +20,9 @@ def playGame(input_system):
         id += 1
     arena.PLAYERS = players
     run = True
+    
     while(run):
+        
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
@@ -31,12 +33,15 @@ def playGame(input_system):
         if Config.SCREEN_ON:
             arena.drawn()
 
+        dt = clock.tick(Config.FPS)
+        #print(clock.get_fps(), dt)
+
         for player in players:
-            player.update()
+            player.update(dt)
         
         arena.check_end()
         
-        clock.tick(60 * Config.TIME_SPEED)
+        
         if Config.SCREEN_ON:
             pygame.display.update()
         
@@ -61,7 +66,6 @@ def run():
 
     run = True
     player_result_list = []
-    thread_list = []
     # arena deve ter raiz quadrada inteira
     # top_qtd^2 = 4*ARENA_QTD
     # top_qtd = 2 * sqrt 
@@ -101,7 +105,6 @@ def run():
             print("Creating generation {0}".format(generation))
             neural_list = create_run_global(player_result_list, top_qtd, pool)
 
-            thread_list.clear()
             input_multicore = []
             for neuron in neural_list:
                 neuron_player_list = [Neural(neuron[0], 0), Neural(neuron[1], 1), Neural(neuron[2], 2), Neural(neuron[3], 3)]

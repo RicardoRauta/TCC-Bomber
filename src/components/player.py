@@ -44,7 +44,7 @@ class Player:
         self.MODE.arena = ARENA
 
         
-    def update(self):
+    def update(self, dt):
         inputs = self.MODE.get_input()
         # inputs[0] - 1 (se move)  0 (fica parado) - movimento
         # inputs[1] - 1 (vertical) 0 (horizontal)  - direção
@@ -55,9 +55,12 @@ class Player:
 
         if self.ARENA.checkDeath(int(self.X_ARENA_POS), int(self.Y_ARENA_POS)):
             self.die()
+        
+        mov = max(int((dt / 30) / 2), 1)
+        #print(mov)
 
         if not self.death:
-            for k in range(self.speed):
+            for k in range(self.speed + mov):
                 if inputs[0] == 1:
                     if inputs[1] == 1:
                         if inputs[2] == 1:

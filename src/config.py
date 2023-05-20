@@ -30,9 +30,6 @@ class Config:
 
     ## GAME CONFIG
 
-    #TIME_SPEED = 10
-    TIME_SPEED = 1
-
     # Pontuação:
     # Colocou bomba    5
     SCORE_BOMB = 5

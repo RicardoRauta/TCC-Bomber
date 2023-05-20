@@ -2,6 +2,7 @@ import pygame
 
 class HumanMode():
     arena = None
+    weight = None
 
     def get_input(self):
         input = [0,0,0,0]

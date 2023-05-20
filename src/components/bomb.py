@@ -22,7 +22,7 @@ class Bomb:
             self.step += 1
             if self.step > 15:
                 self.step = 0
-            if pygame.time.get_ticks() - self.time >= 3000 / Config.TIME_SPEED:
+            if pygame.time.get_ticks() - self.time >= 3000:
                 self.step = 0
                 self.explode()
         elif self.exist:
