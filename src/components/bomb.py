@@ -13,7 +13,7 @@ class Bomb:
         self.step = 0
         self.time = pygame.time.get_ticks()
         self.boom = False
-        self.OWNER.ARENA.MATRIX[self.X_POS][self.Y_POS] = '0'
+        self.OWNER.ARENA.MATRIX[self.X_POS][self.Y_POS] = Config.ARENA_BOMB
         self.OWNER.ARENA.BOMBS[self.X_POS][self.Y_POS] = self
 
     def update(self):
@@ -36,11 +36,11 @@ class Bomb:
             self.step += 1
             if self.step >= 35:
                 self.exist = False
-                self.OWNER.ARENA.MATRIX[self.X_POS][self.Y_POS] = '-'
+                self.OWNER.ARENA.MATRIX[self.X_POS][self.Y_POS] = Config.ARENA_VOID
                 self.OWNER.BOMBS.remove(self)
 
     def explosionRec(self, dir, x, y, left):
-        if left == 0 or self.OWNER.ARENA.hasBlockPosition(x, y) == 'o':
+        if left == 0 or self.OWNER.ARENA.hasBlockPosition(x, y) == Config.ARENA_WALL:
             return
         for p in self.OWNER.ARENA.PLAYERS:
             if not p.death and int(p.X_ARENA_POS) == x and int(p.Y_ARENA_POS) == y:

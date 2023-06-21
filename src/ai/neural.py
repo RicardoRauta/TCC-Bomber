@@ -60,7 +60,7 @@ class Neural():
         if Config.SENSOR_TOTAL:
             array += self.getTotaVisionlArena()   # len(array) = 81 * 8 + 9
         else:
-            array += self.getLimitedVisionArena() # len(array) = 45 * 8 + 9
+            array += self.getLimitedVisionArena() # len(array) = 45 * 8 + 9 ## 45 * 4 + 10
         
         #print ("{0} {1} {2} {3} - ID {4}".format(len(array), len(array)/2, 4, len(array)*(len(array)/2)+(len(array)/2)*4, self.id))
         return self.inputSelector(array)
@@ -84,7 +84,7 @@ class Neural():
 
     def getLimitedVisionArena(self):
         array = []
-         # Primeiro coloca o ID do jogador, 0-3
+        # Primeiro coloca o ID do jogador, 0-3
         array.append(self.id)
         # Coloca as posições de cada jogador
         if self.arena != None:
@@ -94,6 +94,8 @@ class Neural():
         else:
             for i in range(4*2):
                 array.append(0)
+        # Coloca o tempo de jogo
+        array.append(self.arena.arena_time())
 
         player = self.arena.PLAYERS[self.id]
 
@@ -118,21 +120,21 @@ class Neural():
         return array
 
     def sensorValues(self, obj):
-        array = [0,0,0,0,0,0,0,0]
-        if obj == None or obj == 'o':      # Verifica se tem bloco indestrutivel ou vazio
+        array = [0,0,0,0]#,0,0,0,0]
+        if obj == None or obj == Config.ARENA_WALL:      # Verifica se tem bloco indestrutivel ou vazio
             array[0] = 1
-        elif obj == '-':      # Verifica se tem espaço vazio
+        elif obj == Config.ARENA_VOID:      # Verifica se tem espaço vazio
             array[1] = 1
-        elif obj == '*':      # Verifica se tem bloco quebravel
+        #elif obj == Config.ARENA_BLOCK:      # Verifica se tem bloco quebravel
+        #    array[2] = 1
+        elif obj == Config.ARENA_BOMB:      # Verifica se tem bomba
             array[2] = 1
-        elif obj == '0':      # Verifica se tem bomba
+        elif obj == Config.ARENA_EXPLOSION:      # Verifica se tem explosão
             array[3] = 1
-        elif obj == 'X':      # Verifica se tem explosão
-            array[4] = 1
-        elif obj == 'b':      # Verifica se tem item bomba
-            array[5] = 1
-        elif obj == 'p':      # Verifica se tem item fogo
-            array[6] = 1
-        elif obj == 's':      # Verifica se tem item velocidade
-            array[7] = 1
+        #elif obj == Config.ARENA_UPGRADE_BOMB:      # Verifica se tem item bomba
+        #    array[5] = 1
+        #elif obj == Config.ARENA_UPGRADE_POWER:      # Verifica se tem item fogo
+        #    array[6] = 1
+        #elif obj == Config.ARENA_UPGRADE_SPEED:      # Verifica se tem item velocidade
+        #    array[7] = 1
         return array

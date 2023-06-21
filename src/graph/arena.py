@@ -54,19 +54,19 @@ class ArenaGraph:
         for i in range(width):
             for j in range(height):
                 image = BRICK_DESTROY[5]
-                if matrix[i][j] == 'o':
+                if matrix[i][j] == Config.ARENA_WALL:
                     image = BLOCK[0]
-                elif matrix[i][j] == '*':
+                elif matrix[i][j] == Config.ARENA_BLOCK:
                     image = BRICK[0]
-                elif matrix[i][j] == '-' or matrix[i][j] == '0' or matrix[i][j] == 'x':
-                    if matrix[i][j-1] == 'o':
+                elif matrix[i][j] == Config.ARENA_VOID or matrix[i][j] == Config.ARENA_BOMB or matrix[i][j] == Config.ARENA_EXPLOSION:
+                    if matrix[i][j-1] == Config.ARENA_WALL:
                         image = GROUND_SHADOW[0]
                     else:
                         image = GROUND[0]
-                elif matrix[i][j] == 'b':
+                elif matrix[i][j] == Config.ARENA_UPGRADE_BOMB:
                     image = ITEM_EXTRA_BOMB[0]
-                elif matrix[i][j] == 's':
+                elif matrix[i][j] == Config.ARENA_UPGRADE_SPEED:
                     image = ITEM_SPEED_INCREASE[0]
-                elif matrix[i][j] == 'p':
+                elif matrix[i][j] == Config.ARENA_UPGRADE_POWER:
                     image = ITEM_BLAST_RADIUS[0]
                 GlobalState.SCREEN.blit(image, (offsetX+Config.BLOCK_SIZE*i,offsetY+Config.BLOCK_SIZE*j))

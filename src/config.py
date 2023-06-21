@@ -14,8 +14,9 @@ class Config:
 
     ## IA CONFIG
 
-    #NEURONS = [978, 489, 4] # 978 * 489 + 489 * 4 = 480198
-    NEURONS = [369, 184, 4] # 369 * 184 + 184 * 4 = 68632
+    #NEURONS = [978, 489, 4] # 978 * 489 + 489 * 4 = 480.198
+    #NEURONS = [369, 184, 4] # 369 * 184 + 184 * 4 = 68.632
+    NEURONS = [190, 95, 4] # 190 * 95 + 95 * 4 = 18.430
     WEIGHTS_QTD = NEURONS[0] * NEURONS[1] + NEURONS[1] * NEURONS[2]
     WEIGHTS_RANGE = 1000
 
@@ -23,7 +24,7 @@ class Config:
 
     ARENA_QTD = 16
     HUMAN_MODE = False
-    LOAD = False
+    LOAD = True
     SCREEN_ON = True
     SENSOR_TOTAL = False
 
@@ -32,10 +33,20 @@ class Config:
 
     # Pontuação:
     # Colocou bomba    5
-    SCORE_BOMB = 5
-    # Destruiu bloco   1
-    SCORE_BRICK = 5
+    SCORE_BOMB = 50
+    # Destruiu bloco   5
+    SCORE_BRICK = 200
     # Se explodiu
-    SCORE_SELF_KILL = -20
+    SCORE_SELF_KILL = -500
     # Explodiu oponente
-    SCORE_KILL_PLAYER = 20
+    SCORE_KILL_PLAYER = 500
+
+    ## ARENA CONFIG
+    ARENA_BLOCK = '*'
+    ARENA_WALL = 'o'
+    ARENA_BOMB = '0'
+    ARENA_EXPLOSION = 'x'
+    ARENA_VOID = '-'
+    ARENA_UPGRADE_BOMB = 'b'
+    ARENA_UPGRADE_POWER = 'p'
+    ARENA_UPGRADE_SPEED = 's'

@@ -14,8 +14,8 @@ class Player:
         
         self.BOMBS = []
         self.speed = 1
-        self.max_bomb = 1
-        self.bomb_power = 1
+        self.max_bomb = 2
+        self.bomb_power = 4
         self.place_bomb = False
         self.death = False
         self.MODE = MODE
@@ -97,19 +97,19 @@ class Player:
                                 self.X_POS += 2
                             self.graph.update("K_LEFT", self.X_POS, self.Y_POS)
             if inputs[3] == 1 and len(self.BOMBS) < self.max_bomb:
-                if self.ARENA.hasBlockPosition(self.X_ARENA_POS, self.Y_ARENA_POS) == '-':
+                if self.ARENA.hasBlockPosition(self.X_ARENA_POS, self.Y_ARENA_POS) == Config.ARENA_VOID:
                     self.SCORE += Config.SCORE_BOMB
                     self.BOMBS.append(Bomb(self))
                     self.place_bomb = True
-        if self.ARENA.hasBlockGlobal(self.X_POS, self.Y_POS) == '-':
+        if self.ARENA.hasBlockGlobal(self.X_POS, self.Y_POS) == Config.ARENA_VOID:
             self.place_bomb = False
         item = self.ARENA.hasItem(int(self.X_ARENA_POS), int(self.Y_ARENA_POS))
         if item != None:
-            if item == 'b':
+            if item == Config.ARENA_UPGRADE_BOMB:
                 self.max_bomb += 1
-            elif item == 'p':
+            elif item == Config.ARENA_UPGRADE_POWER:
                 self.bomb_power += 1
-            elif item == 's':
+            elif item == Config.ARENA_UPGRADE_SPEED:
                 self.speed += 1
         for bomb in self.BOMBS:
             bomb.update()
