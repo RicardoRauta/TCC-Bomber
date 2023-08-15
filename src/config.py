@@ -1,5 +1,5 @@
 class Config:
-    CPU_CORE = 4
+    CPU_CORE = 16
     FPS = 30
 
     ## Screen Information
@@ -22,9 +22,9 @@ class Config:
 
     ## MODE CONFIG
 
-    ARENA_QTD = 16
+    ARENA_QTD = 64
     HUMAN_MODE = False
-    LOAD = True
+    LOAD = False
     SCREEN_ON = True
     SENSOR_TOTAL = False
 
