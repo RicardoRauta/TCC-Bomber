@@ -21,6 +21,7 @@ class Player:
         self.MODE = MODE
         self.ARENA = ARENA
         self.MODE.arena = ARENA
+        self.MODE.id = ID
 
         if ID == 0:
             self.X_POS = 0
@@ -45,13 +46,17 @@ class Player:
 
         
     def update(self, dt):
-        inputs = self.MODE.get_input()
         # inputs[0] - 1 (se move)  0 (fica parado) - movimento
         # inputs[1] - 1 (vertical) 0 (horizontal)  - direção
         # inputs[2] - 1 (positivo) 0 (negativo)    - sentido
         # inputs[3] - 1 (bomba)    0 (nada)        - bomba
-        self.X_ARENA_POS = (self.X_POS + Config.PLAYER_SIZE/2) / Config.BLOCK_SIZE + 1
-        self.Y_ARENA_POS = (self.Y_POS + Config.PLAYER_SIZE/2) / Config.BLOCK_SIZE + 1
+
+
+        # inputs[0] - 1 mover para cima
+        # inputs[1] - 1 mover para baixo
+        # inputs[2] - 1 mover para esquerda
+        # inputs[3] - 1 mover para direita
+        # inputs[4] - 1 sotlar bomba
 
         if self.ARENA.checkDeath(int(self.X_ARENA_POS), int(self.Y_ARENA_POS)):
             self.die()
@@ -60,43 +65,66 @@ class Player:
         #print(mov)
 
         if not self.death:
+            inputs = self.MODE.get_input()
+            move = [inputs[3] - inputs[2], inputs[1] - inputs[0]]
+
+            self.X_ARENA_POS = (self.X_POS + Config.PLAYER_SIZE/2) / Config.BLOCK_SIZE + 1
+            self.Y_ARENA_POS = (self.Y_POS + Config.PLAYER_SIZE/2) / Config.BLOCK_SIZE + 1
+
             for k in range(self.speed + mov):
-                if inputs[0] == 1:
-                    if inputs[1] == 1:
-                        if inputs[2] == 1:
-                            self.Y_POS -= 1
-                            if self.place_bomb:
-                                if not self.ARENA.canGoIn(self.X_POS, self.Y_POS, Config.PLAYER_SIZE, True):
-                                    self.Y_POS += 2
-                            elif not self.ARENA.canGoIn(self.X_POS, self.Y_POS, Config.PLAYER_SIZE):
-                                    self.Y_POS += 2
-                            self.graph.update("K_UP", self.X_POS, self.Y_POS)
-                        else:
-                            self.Y_POS += 1
-                            if self.place_bomb:
-                                if not self.ARENA.canGoIn(self.X_POS, self.Y_POS, Config.PLAYER_SIZE, True):
-                                    self.Y_POS -= 2
-                            elif not self.ARENA.canGoIn(self.X_POS, self.Y_POS, Config.PLAYER_SIZE):
-                                self.Y_POS -= 2
-                            self.graph.update("K_DOWN", self.X_POS, self.Y_POS)
-                    else:
-                        if inputs[2] == 1:
-                            self.X_POS += 1
-                            if self.place_bomb:
-                                if not self.ARENA.canGoIn(self.X_POS, self.Y_POS, Config.PLAYER_SIZE, True):
-                                    self.X_POS -= 2
-                            elif not self.ARENA.canGoIn(self.X_POS, self.Y_POS, Config.PLAYER_SIZE):
-                                self.X_POS -= 2
-                            self.graph.update("K_RIGHT", self.X_POS, self.Y_POS)
-                        else:
-                            self.X_POS -= 1
-                            if self.place_bomb:
-                                if not self.ARENA.canGoIn(self.X_POS, self.Y_POS, Config.PLAYER_SIZE, True):
-                                    self.X_POS += 2
-                            elif not self.ARENA.canGoIn(self.X_POS, self.Y_POS, Config.PLAYER_SIZE):
-                                self.X_POS += 2
-                            self.graph.update("K_LEFT", self.X_POS, self.Y_POS)
-            if inputs[3] == 1 and len(self.BOMBS) < self.max_bomb:
+
+                if self.ARENA.canGoIn(self.X_POS, self.Y_POS + move[1], Config.PLAYER_SIZE, self.X_POS, self.Y_POS):
+                        self.Y_POS += move[1]
+                if self.ARENA.canGoIn(self.X_POS + move[0], self.Y_POS, Config.PLAYER_SIZE, self.X_POS, self.Y_POS):
+                        self.X_POS += move[0]
+                
+                if move[0] > 0:
+                    self.graph.update("K_RIGHT", self.X_POS, self.Y_POS)
+                elif move[0] < 0:
+                    self.graph.update("K_LEFT", self.X_POS, self.Y_POS)
+                elif move[1] < 0:
+                    self.graph.update("K_UP", self.X_POS, self.Y_POS)
+                elif move[1] > 0:
+                    self.graph.update("K_DOWN", self.X_POS, self.Y_POS)
+
+                
+                
+                #if inputs[0] == 1:
+                #    if inputs[1] == 1:
+                #        if inputs[2] == 1:
+                #            self.Y_POS -= 1
+                #            if self.place_bomb:
+                #                if not self.ARENA.canGoIn(self.X_POS, self.Y_POS, Config.PLAYER_SIZE, True):
+                #                    self.Y_POS += 2
+                #            elif not self.ARENA.canGoIn(self.X_POS, self.Y_POS, Config.PLAYER_SIZE):
+                #                    self.Y_POS += 2
+                #            self.graph.update("K_UP", self.X_POS, self.Y_POS)
+                #        else:
+                #            self.Y_POS += 1
+                #            if self.place_bomb:
+                #                if not self.ARENA.canGoIn(self.X_POS, self.Y_POS, Config.PLAYER_SIZE, True):
+                #                    self.Y_POS -= 2
+                #            elif not self.ARENA.canGoIn(self.X_POS, self.Y_POS, Config.PLAYER_SIZE):
+                #                self.Y_POS -= 2
+                #            self.graph.update("K_DOWN", self.X_POS, self.Y_POS)
+                #    else:
+                #        if inputs[2] == 1:
+                #            self.X_POS += 1
+                #            if self.place_bomb:
+                #                if not self.ARENA.canGoIn(self.X_POS, self.Y_POS, Config.PLAYER_SIZE, True):
+                #                    self.X_POS -= 2
+                #            elif not self.ARENA.canGoIn(self.X_POS, self.Y_POS, Config.PLAYER_SIZE):
+                #                self.X_POS -= 2
+                #            self.graph.update("K_RIGHT", self.X_POS, self.Y_POS)
+                #        else:
+                #            self.X_POS -= 1
+                #            if self.place_bomb:
+                #                if not self.ARENA.canGoIn(self.X_POS, self.Y_POS, Config.PLAYER_SIZE, True):
+                #                    self.X_POS += 2
+                #            elif not self.ARENA.canGoIn(self.X_POS, self.Y_POS, Config.PLAYER_SIZE):
+                #                self.X_POS += 2
+                #            self.graph.update("K_LEFT", self.X_POS, self.Y_POS)
+            if inputs[4] == 1 and len(self.BOMBS) < self.max_bomb:
                 if self.ARENA.hasBlockPosition(self.X_ARENA_POS, self.Y_ARENA_POS) == Config.ARENA_VOID:
                     self.SCORE += Config.SCORE_BOMB
                     self.BOMBS.append(Bomb(self))
@@ -118,6 +146,8 @@ class Player:
     def die(self):
         self.graph.is_death = True
         self.death = True
+        self.X_ARENA_POS = -1
+        self.Y_ARENA_POS = -1
 
     def drawn(self):
         self.graph.draw(self.ARENA.WIDTH, self.ARENA.HEIGHT)

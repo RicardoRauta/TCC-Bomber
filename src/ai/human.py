@@ -5,19 +5,20 @@ class HumanMode():
     weight = None
 
     def get_input(self):
-        input = [0,0,0,0]
+        id = 0
+        input = [0,0,0,0, 0]
         userInputArray = pygame.key.get_pressed()
 
         if userInputArray[pygame.K_UP]:
-            input = [1,1,1,0]
-        elif userInputArray[pygame.K_DOWN]:
-            input = [1,1,0,0]
-        elif userInputArray[pygame.K_LEFT]:
-            input = [1,0,0,0]
-        elif userInputArray[pygame.K_RIGHT]:
-            input = [1,0,1,0]
-        if userInputArray[pygame.K_SPACE]:
+            input[0] = 1
+        if userInputArray[pygame.K_DOWN]:
+            input[1] = 1
+        if userInputArray[pygame.K_LEFT]:
+            input[2] = 1
+        if userInputArray[pygame.K_RIGHT]:
             input[3] = 1
+        if userInputArray[pygame.K_SPACE]:
+            input[4] = 1
         return input
     
     def set_arena(self, arena):

@@ -1,5 +1,5 @@
 class Config:
-    CPU_CORE = 16
+    CPU_CORE = 32
     FPS = 30
 
     ## Screen Information
@@ -14,17 +14,19 @@ class Config:
 
     ## IA CONFIG
 
-    #NEURONS = [978, 489, 4] # 978 * 489 + 489 * 4 = 480.198
-    #NEURONS = [369, 184, 4] # 369 * 184 + 184 * 4 = 68.632
-    NEURONS = [190, 95, 4] # 190 * 95 + 95 * 4 = 18.430
+    #NEURONS = [978, 489, 4] # 978 * 489 + 489 * 5 = 480.687
+    #NEURONS = [369, 184, 4] # 369 * 184 + 184 * 5 = 68.816
+    NEURONS = [190, 95, 5] # 190 * 95 + 95 * 5 = 18.525
     WEIGHTS_QTD = NEURONS[0] * NEURONS[1] + NEURONS[1] * NEURONS[2]
     WEIGHTS_RANGE = 1000
 
+#comecou 16:10
+#gen 666 em 21h53, 14:03
     ## MODE CONFIG
 
-    ARENA_QTD = 64
+    ARENA_QTD = 256
     HUMAN_MODE = False
-    LOAD = False
+    LOAD = True
     SCREEN_ON = True
     SENSOR_TOTAL = False
 
@@ -32,9 +34,9 @@ class Config:
     ## GAME CONFIG
 
     # Pontuação:
-    # Colocou bomba    5
-    SCORE_BOMB = 50
-    # Destruiu bloco   5
+    # Colocou bomba
+    SCORE_BOMB = 10
+    # Destruiu bloco
     SCORE_BRICK = 200
     # Se explodiu
     SCORE_SELF_KILL = -500

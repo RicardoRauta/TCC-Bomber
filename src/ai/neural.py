@@ -15,6 +15,7 @@ class Neural():
     arena = None
     clock = None
     weight = None
+    id = 0
 
     def __init__(self, weight, id):
         self.weight = weight
@@ -25,7 +26,11 @@ class Neural():
         #print("len array {0} neurons {1}".format(len(array), Config.NEURONS))
 
         op = self.neuronsOp(array, Config.NEURONS, [sigmoid, sigmoid])
-        
+        for i in range(len(op)):
+            if (op[i] < 0.5):
+                op[i] = 0
+            else:
+                op[i] = 1
         return op
 
     def neuronsOp(self, value, neurons, func_list):

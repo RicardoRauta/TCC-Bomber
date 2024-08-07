@@ -272,6 +272,8 @@ class PlayerGraph:
         
         if not(self.X_POS == X_POS) or not(self.Y_POS == Y_POS):
             self.walk()
+        else:
+            self.image = self.image[self.step_index // 4]
 
         self.X_POS = X_POS
         self.Y_POS = Y_POS

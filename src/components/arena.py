@@ -28,7 +28,7 @@ class Arena:
         return False
 
     def getObjectInPosition(self, positionX, positionY):
-        if positionX < 0 or positionX > self.WIDTH-1 or positionY < 0 or positionY > self.HEIGHT-1:
+        if positionX < 0 or positionX > self.WIDTH+1 or positionY < 0 or positionY > self.HEIGHT+1:
             return None
         else:
             return self.MATRIX[positionX][positionY]
@@ -61,7 +61,8 @@ class Arena:
             return True
         return False
 
-    def canGoIn(self, X_POS, Y_POS, OBJECT_SIZE, MOVE_THROUGH_BOMB = False):
+    def canGoIn(self, X_POS, Y_POS, OBJECT_SIZE, X_POS_A, Y_POS_A):
+        MOVE_THROUGH_BOMB = True#int(X_POS) == int(X_POS_A) and int(Y_POS) == int(Y_POS_A)
         left_x = (X_POS) // Config.BLOCK_SIZE + 1
         right_x = (X_POS + OBJECT_SIZE) // Config.BLOCK_SIZE + 1
         up_y = (Y_POS) // Config.BLOCK_SIZE + 1
@@ -158,7 +159,7 @@ class Arena:
         for p in self.PLAYERS:
             if p.death:
                 alive -= 1
-        if alive <= 1:
+        if alive <= 1 or self.PLAYERS[0].death:
             self.END = True
         if self.END == True:
             for p in self.PLAYERS:

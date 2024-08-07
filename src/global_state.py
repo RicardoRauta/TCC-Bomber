@@ -3,7 +3,7 @@ from src.components.game_status import GameStatus
 from src.config import Config
 
 class GlobalState:
-    GAME_STATE = GameStatus.MAIN_MENU
+    GAME_STATE = GameStatus.GAME_SCORE
     SCREEN = None
 
     @staticmethod
