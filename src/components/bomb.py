@@ -28,6 +28,7 @@ class Bomb:
         elif self.exist:
             if self.OWNER.ARENA.checkBrickDestroy(self.X_POS, self.Y_POS,self.step==34):
                 self.OWNER.SCORE += Config.SCORE_BRICK
+            self.checkKill(self.X_POS,self.Y_POS)
             BombGraph.explosion_draw(self.X_POS,self.Y_POS,self.step, "start", 0,self.OWNER.ARENA.WIDTH, self.OWNER.ARENA.HEIGHT)
             self.explosionRec("x+", self.X_POS + 1, self.Y_POS, self.bomb_power)
             self.explosionRec("y-", self.X_POS, self.Y_POS - 1, self.bomb_power)
@@ -42,15 +43,7 @@ class Bomb:
     def explosionRec(self, dir, x, y, left):
         if left == 0 or self.OWNER.ARENA.hasBlockPosition(x, y) == Config.ARENA_WALL:
             return
-        for p in self.OWNER.ARENA.PLAYERS:
-            if not p.death and int(p.X_ARENA_POS) == x and int(p.Y_ARENA_POS) == y:
-                if p == self.OWNER:
-                    #print("Self KILL")
-                    p.SCORE += Config.SCORE_SELF_KILL
-                else:
-                    #print("Kill Player")
-                    p.SCORE += Config.SCORE_KILL_PLAYER
-                p.die()
+        self.checkKill(x,y)
         if self.OWNER.ARENA.checkBrickDestroy(x,y,self.step==34):
             self.OWNER.SCORE += Config.SCORE_BRICK
             BombGraph.explosion_draw(x ,y,self.step, "block", 0,self.OWNER.ARENA.WIDTH, self.OWNER.ARENA.HEIGHT)
@@ -76,6 +69,15 @@ class Bomb:
         else:
             BombGraph.explosion_draw(x,y,self.step, "middle", rot,self.OWNER.ARENA.WIDTH, self.OWNER.ARENA.HEIGHT)
     
+    def checkKill(self, x, y):
+        for p in self.OWNER.ARENA.PLAYERS:
+            if not p.death and int(p.X_ARENA_POS) == x and int(p.Y_ARENA_POS) == y:
+                if p.ID == self.OWNER.ID:
+                    self.OWNER.SCORE += Config.SCORE_SELF_KILL
+                else:
+                    self.OWNER.SCORE += Config.SCORE_KILL_PLAYER
+                p.die()
+
     def explode(self):
         self.boom = True
         self.OWNER.ARENA.BOMBS[self.X_POS][self.Y_POS] = None

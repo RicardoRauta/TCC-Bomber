@@ -54,6 +54,7 @@ def playGame(input_system):
             weight = players[0].MODE.weight
         elif isinstance(p.MODE, HumanMode):
             score = p.SCORE
+            print(str(score))
     
     return [score, weight]
 

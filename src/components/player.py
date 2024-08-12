@@ -87,43 +87,6 @@ class Player:
                 elif move[1] > 0:
                     self.graph.update("K_DOWN", self.X_POS, self.Y_POS)
 
-                
-                
-                #if inputs[0] == 1:
-                #    if inputs[1] == 1:
-                #        if inputs[2] == 1:
-                #            self.Y_POS -= 1
-                #            if self.place_bomb:
-                #                if not self.ARENA.canGoIn(self.X_POS, self.Y_POS, Config.PLAYER_SIZE, True):
-                #                    self.Y_POS += 2
-                #            elif not self.ARENA.canGoIn(self.X_POS, self.Y_POS, Config.PLAYER_SIZE):
-                #                    self.Y_POS += 2
-                #            self.graph.update("K_UP", self.X_POS, self.Y_POS)
-                #        else:
-                #            self.Y_POS += 1
-                #            if self.place_bomb:
-                #                if not self.ARENA.canGoIn(self.X_POS, self.Y_POS, Config.PLAYER_SIZE, True):
-                #                    self.Y_POS -= 2
-                #            elif not self.ARENA.canGoIn(self.X_POS, self.Y_POS, Config.PLAYER_SIZE):
-                #                self.Y_POS -= 2
-                #            self.graph.update("K_DOWN", self.X_POS, self.Y_POS)
-                #    else:
-                #        if inputs[2] == 1:
-                #            self.X_POS += 1
-                #            if self.place_bomb:
-                #                if not self.ARENA.canGoIn(self.X_POS, self.Y_POS, Config.PLAYER_SIZE, True):
-                #                    self.X_POS -= 2
-                #            elif not self.ARENA.canGoIn(self.X_POS, self.Y_POS, Config.PLAYER_SIZE):
-                #                self.X_POS -= 2
-                #            self.graph.update("K_RIGHT", self.X_POS, self.Y_POS)
-                #        else:
-                #            self.X_POS -= 1
-                #            if self.place_bomb:
-                #                if not self.ARENA.canGoIn(self.X_POS, self.Y_POS, Config.PLAYER_SIZE, True):
-                #                    self.X_POS += 2
-                #            elif not self.ARENA.canGoIn(self.X_POS, self.Y_POS, Config.PLAYER_SIZE):
-                #                self.X_POS += 2
-                #            self.graph.update("K_LEFT", self.X_POS, self.Y_POS)
             if inputs[4] == 1 and len(self.BOMBS) < self.max_bomb:
                 if self.ARENA.hasBlockPosition(self.X_ARENA_POS, self.Y_ARENA_POS) == Config.ARENA_VOID:
                     self.SCORE += Config.SCORE_BOMB

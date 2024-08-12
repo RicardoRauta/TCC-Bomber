@@ -35,13 +35,13 @@ class Config:
 
     # Pontuação:
     # Colocou bomba
-    SCORE_BOMB = 10
+    SCORE_BOMB = 5
     # Destruiu bloco
-    SCORE_BRICK = 200
+    SCORE_BRICK = 2
     # Se explodiu
-    SCORE_SELF_KILL = -500
+    SCORE_SELF_KILL = -50
     # Explodiu oponente
-    SCORE_KILL_PLAYER = 500
+    SCORE_KILL_PLAYER = 50
 
     ## ARENA CONFIG
     ARENA_BLOCK = '*'

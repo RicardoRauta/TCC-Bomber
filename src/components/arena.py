@@ -57,7 +57,7 @@ class Arena:
                     self.MATRIX[i][j] = Config.ARENA_WALL
 
     def checkDeath(self, X_POS, Y_POS):
-        if self.MATRIX[X_POS][Y_POS] == Config.ARENA_WALL or self.MATRIX[X_POS][Y_POS] == Config.ARENA_EXPLOSION:
+        if self.MATRIX[X_POS][Y_POS] == Config.ARENA_WALL:
             return True
         return False
 
