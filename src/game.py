@@ -68,25 +68,23 @@ def runScore():
     if not os.path.exists("OutputScore"):
         os.makedirs("OutputScore")
 
-    run = True
-    player_result_list = []
-    # arena deve ter raiz quadrada inteira
-    # top_qtd^2 = 4*ARENA_QTD
-    # top_qtd = 2 * sqrt 
     top_qtd = int(math.sqrt(Config.ARENA_QTD))
-    best_score = -1000
-    timer = pygame.time.get_ticks()
-
-    if Config.HUMAN_MODE:
-        input_system = [HumanMode(), DecisionTree(), DecisionTree(), DecisionTree()]
-        playGame(input_system)
-    else:
-        if Config.LOAD:
-            loadFile = open("Output/best.save", "r")
-            generation, best_score, neuron = load_best(loadFile, top_qtd)
-            loadFile.close()
-            input_system = [Neural(neuron[0][1], 1), DecisionTree(), DecisionTree(), DecisionTree()]
-            playGame(input_system)
+    totalScore = 0
+    for x in range(10):
+        if Config.HUMAN_MODE:
+            input_system = [HumanMode(), DecisionTree(), DecisionTree(), DecisionTree()]
+            score, _ = playGame(input_system)
+        else:
+            if Config.LOAD:
+                loadFile = open("Output/best.save", "r")
+                generation, best_score, neuron = load_best(loadFile, top_qtd)
+                loadFile.close()
+                input_system = [Neural(neuron[0][1], 1), DecisionTree(), DecisionTree(), DecisionTree()]
+                score, _ = playGame(input_system)
+        print ("Score " + str(x) + " = " + str(score))
+        totalScore += score
+    print ("Final Score = " + str(totalScore / 10))
+    exit()
             
 
 def run():

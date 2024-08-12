@@ -25,7 +25,7 @@ class Config:
     ## MODE CONFIG
 
     ARENA_QTD = 256
-    HUMAN_MODE = False
+    HUMAN_MODE = True
     LOAD = True
     SCREEN_ON = True
     SENSOR_TOTAL = False
