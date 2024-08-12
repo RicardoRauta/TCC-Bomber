@@ -25,8 +25,8 @@ class Config:
     ## MODE CONFIG
 
     ARENA_QTD = 256
-    HUMAN_MODE = True
-    LOAD = True
+    HUMAN_MODE = False
+    LOAD = False
     SCREEN_ON = True
     SENSOR_TOTAL = False
 
@@ -35,13 +35,13 @@ class Config:
 
     # Pontuação:
     # Colocou bomba
-    SCORE_BOMB = 5
+    SCORE_BOMB = 50
     # Destruiu bloco
     SCORE_BRICK = 2
     # Se explodiu
-    SCORE_SELF_KILL = -50
+    SCORE_SELF_KILL = -500
     # Explodiu oponente
-    SCORE_KILL_PLAYER = 50
+    SCORE_KILL_PLAYER = 500
 
     ## ARENA CONFIG
     ARENA_BLOCK = '*'

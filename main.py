@@ -32,6 +32,6 @@ def main():
 
 
 if __name__ == "__main__":
-    #GlobalState.GAME_STATE = GameStatus.GAME_PLAY
-    GlobalState.GAME_STATE = GameStatus.GAME_SCORE
+    GlobalState.GAME_STATE = GameStatus.GAME_PLAY
+    #GlobalState.GAME_STATE = GameStatus.GAME_SCORE
     main()
