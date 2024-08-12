@@ -56,7 +56,7 @@ class Player:
         # inputs[1] - 1 mover para baixo
         # inputs[2] - 1 mover para esquerda
         # inputs[3] - 1 mover para direita
-        # inputs[4] - 1 sotlar bomba
+        # inputs[4] - 1 soltar bomba
 
         if self.ARENA.checkDeath(int(self.X_ARENA_POS), int(self.Y_ARENA_POS)):
             self.die()
