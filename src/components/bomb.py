@@ -76,7 +76,11 @@ class Bomb:
                     self.OWNER.SCORE += Config.SCORE_SELF_KILL
                 else:
                     self.OWNER.SCORE += Config.SCORE_KILL_PLAYER
+                p.SCORE += Config.SCORE_DIE
                 p.die()
+                for p2 in self.OWNER.ARENA.PLAYERS:
+                    if p.ID != p2.ID:
+                        p2.SCORE += Config.SCORE_OTHER_DIE
 
     def explode(self):
         self.boom = True

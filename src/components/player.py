@@ -3,7 +3,7 @@ from src.graph.player import PlayerGraph
 from src.components.bomb import Bomb
 
 class Player:
-    SCORE = 0
+    SCORE = 500
     X_POS = 0
     Y_POS = 0
     ID = 0

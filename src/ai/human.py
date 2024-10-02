@@ -3,10 +3,18 @@ import pygame
 class HumanMode():
     arena = None
     weight = None
+    active = False
+
+    def __init__(self, active):
+        self.active = active
 
     def get_input(self):
         id = 0
         input = [0,0,0,0, 0]
+
+        if not self.active:
+            return input
+
         userInputArray = pygame.key.get_pressed()
 
         if userInputArray[pygame.K_UP]:

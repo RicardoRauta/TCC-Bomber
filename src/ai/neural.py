@@ -72,7 +72,7 @@ class Neural():
 
     def getTotaVisionlArena(self):
         array = []
-         # Primeiro coloca o ID do jogador, 0-3
+        # Primeiro coloca o ID do jogador, 0-3
         array.append(self.id)
         # Coloca as posições de cada jogador
         if self.arena != None:
@@ -82,9 +82,13 @@ class Neural():
         else:
             for i in range(4*2):
                 array.append(0)
+        # Coloca o tempo de jogo
+        array.append(self.arena.arena_time())
         # Coloca cada objeto da arena
-        for k in self.arena.MATRIX:
-            array += self.sensorValues(k)
+        for x in range(self.arena.WIDTH):
+            for y in range(self.arena.HEIGHT):
+                array += self.sensorValues(self.arena.getObjectInPosition(x, y))
+        #print(str(len(array)))
         return array
 
     def getLimitedVisionArena(self):
@@ -122,6 +126,7 @@ class Neural():
                     auxY = y_player - 1 + y
                     array += self.sensorValues(self.arena.getObjectInPosition(x, auxY))
         #print(len(array), x_player, y_player)
+        
         return array
 
     def sensorValues(self, obj):

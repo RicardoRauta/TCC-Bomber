@@ -1,6 +1,7 @@
 from src.config import Config
 from src.ai.human import HumanMode
 from src.ai.neural import Neural 
+import random
 # Esta na área de uma bomba
 #   - Sim, fugir
 #   - Não, algum oponente esta próximo?
@@ -17,9 +18,9 @@ class DecisionTree():
     def get_input(self):
         if self.can_die():
             return self.escape_from_bomb()
-        if self.opponent_in_area()[0]:
-            return self.chase_opponent()
-        return self.go_to_target(1+self.arena.WIDTH / 2, 1+self.arena.HEIGHT / 2)
+        #if self.opponent_in_area()[0]:
+        return self.chase_opponent()
+        #return self.go_to_target(1+self.arena.WIDTH / 2, 1+self.arena.HEIGHT / 2)
     
     def set_arena(self, arena):
         self.arena = arena
@@ -103,11 +104,26 @@ class DecisionTree():
         _, enemyX, enemyY = self.opponent_in_area()
 
         returnValue = [0,0,0,0,0]
-
-        if (xP - enemyX < 1 and xP - enemyX > -1 and yP - enemyY < 1 and yP - enemyY > -1):
+        if random.random() < 0.05 and (xP - enemyX < 1 and xP - enemyX > -1 and yP - enemyY < 4 and yP - enemyY > -4):
             returnValue[4] = 1
+        elif random.random() < 0.05 and (xP - enemyX < 4 and xP - enemyX > -4 and yP - enemyY < 1 and yP - enemyY > -1):
+            returnValue[4] = 1
+        if random.random() < 0.05 and (xP - enemyX < 1 and xP - enemyX > -1 and yP - enemyY < 3 and yP - enemyY > -3):
+            returnValue[4] = 1
+        elif random.random() < 0.05 and (xP - enemyX < 3 and xP - enemyX > -3 and yP - enemyY < 1 and yP - enemyY > -1):
+            returnValue[4] = 1
+        elif (xP - enemyX < 1 and xP - enemyX > -1 and yP - enemyY < 1 and yP - enemyY > -1):
+            returnValue[4] = 1
+        elif random.random() < 0.3:
+            returnValue = self.go_to_target(enemyX + 1, enemyY + 1)
+        elif random.random() < 0.3:
+            returnValue = self.go_to_target(enemyX + 1, enemyY - 1)
+        elif random.random() < 0.3:
+            returnValue = self.go_to_target(enemyX - 1, enemyY + 1)
+        elif random.random() < 0.3:
+            returnValue = self.go_to_target(enemyX - 1, enemyY - 1)
         else:
-            returnValue = self.go_to_target(enemyX, enemyY)
+            returnValue = self.go_to_target(enemyX, enemyY )
         
         return returnValue
 

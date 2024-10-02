@@ -1,4 +1,5 @@
 import pygame, random, os, datetime, math, multiprocessing
+import numpy as np
 
 from src.config import Config
 from src.components.game_status import GameStatus
@@ -71,16 +72,21 @@ def runScore():
     top_qtd = int(math.sqrt(Config.ARENA_QTD))
     totalScore = 0
     for x in range(10):
-        if Config.HUMAN_MODE:
-            input_system = [HumanMode(), DecisionTree(), DecisionTree(), DecisionTree()]
+        if Config.HUMAN_MODE and Config.LOAD:
+            loadFile = open("Output/bestTree.save", "r")
+            generation, best_score, neuron = load_best(loadFile, top_qtd)
+            loadFile.close()
+            input_system = [Neural(neuron[0][1], 1), HumanMode(False), HumanMode(False), HumanMode(True)]
             score, _ = playGame(input_system)
-        else:
-            if Config.LOAD:
-                loadFile = open("Output/best.save", "r")
-                generation, best_score, neuron = load_best(loadFile, top_qtd)
-                loadFile.close()
-                input_system = [Neural(neuron[0][1], 1), DecisionTree(), DecisionTree(), DecisionTree()]
-                score, _ = playGame(input_system)
+        elif Config.HUMAN_MODE:
+            input_system = [HumanMode(True), DecisionTree(), DecisionTree(), DecisionTree()]
+            score, _ = playGame(input_system)
+        elif Config.LOAD:
+            loadFile = open("Output/bestTree.save", "r")
+            generation, best_score, neuron = load_best(loadFile, top_qtd)
+            loadFile.close()
+            input_system = [Neural(neuron[0][1], 1), DecisionTree(), DecisionTree(), DecisionTree()]
+            score, _ = playGame(input_system)
         print ("Score " + str(x) + " = " + str(score))
         totalScore += score
     print ("Final Score = " + str(totalScore / 10))
@@ -98,6 +104,85 @@ def run():
     # arena deve ter raiz quadrada inteira
     # top_qtd^2 = 4*ARENA_QTD
     # top_qtd = 2 * sqrt 
+    top_qtd = int(2 * math.sqrt(Config.ARENA_QTD))
+    best_score = -1000
+    timer = pygame.time.get_ticks()
+
+    if Config.HUMAN_MODE:
+        input_system = [HumanMode(), HumanMode(), HumanMode(), HumanMode()]
+        #if Config.LOAD:
+        #    loadFile = open("Output/bestNormal.save", "r")
+        #    generation, best_score, neuron = load_best(loadFile, top_qtd)
+        #    loadFile.close()
+        #    input_system = [HumanMode(), Neural(neuron[0][1], 1), Neural(neuron[1][1], 2), Neural(neuron[2][1], 3)]
+        
+        playGame(input_system)
+    else:
+        #### Inicializar arquivo de log vazio
+        log = "Output/log_{0:%y}_{0:%m}_{0:%d}.txt".format(now)
+        logFile = open(log, "w")
+        logFile.write("")
+        ####
+
+        #### Inicializar tabela de valores
+        table = "Output/table_{0:%y}_{0:%m}_{0:%d}.csv".format(now)
+        tableFile = open(table, "w")
+        tableFile.write("Gen;Time;Best Score;First Place Generation Score;Second Place Generation Score;Third Place Generation Score\n")
+        ####
+        generation = 0
+        if Config.LOAD:
+            loadFile = open("Output/bestNormal.save", "r")
+            generation, best_score, player_result_list = load_best(loadFile, top_qtd)
+            loadFile.close()
+        pool = multiprocessing.Pool(Config.CPU_CORE)
+        player_result_list = []
+        while(run):
+            #print("Creating generation {0}".format(generation))
+            neural_list = create_run_global(player_result_list, top_qtd, pool, 4)
+
+            input_multicore = []
+            for neuron in neural_list:
+                neuron_player_list = [Neural(neuron[0], 0), Neural(neuron[1], 1), Neural(neuron[2], 2), Neural(neuron[3], 3)]
+                input_multicore.append(neuron_player_list)
+
+            player_result_list.clear()
+            #print("Running generation {0}".format(generation))
+            player_result_list = pool.map(playGame, input_multicore)
+            error = filter_player_list(player_result_list)
+            player_result_list.sort(reverse=True)
+            if player_result_list[0][0] > best_score:
+                best_score = player_result_list[0][0]
+            
+            print("Gen {0} COMPLETE - BEST SCORE TOTAL = {2} BEST SCORE GEN {0} = {3} - {1} ERROR".format(generation, error, best_score, player_result_list[0][0]))
+            bestFile = open("Output/bestNormal.save", "w")
+            save_best(generation, best_score, player_result_list[0:top_qtd], bestFile)
+            bestFile.close()
+            logFile.write("Start generation {0}\n\n".format(generation))
+            save_best(generation, best_score, player_result_list[0:top_qtd], logFile)
+            logFile.write("\nEnd generation {0}\n\n".format(generation))
+            genInfo = "{0};{1};{2};{3};{4};{5}\n".format(generation, pygame.time.get_ticks()-timer, best_score, player_result_list[0][0], player_result_list[1][0], player_result_list[2][0])
+            tableFile.write(genInfo)
+            
+            if generation == 500:
+                run = False
+                break
+            generation += 1
+            
+        logFile.close()
+        tableFile.close()
+        exit()
+
+def run_decision_tree():
+    now = datetime.datetime.now()
+    
+    if not os.path.exists("Output"):
+        os.makedirs("Output")
+
+    run = True
+    player_result_list = []
+    # arena deve ter raiz quadrada inteira
+    # top_qtd^2 = 4*ARENA_QTD
+    # top_qtd = 2 * sqrt 
     top_qtd = int(math.sqrt(Config.ARENA_QTD))
     best_score = -1000
     timer = pygame.time.get_ticks()
@@ -105,7 +190,7 @@ def run():
     if Config.HUMAN_MODE:
         input_system = [HumanMode(), HumanMode(), HumanMode(), HumanMode()]
         if Config.LOAD:
-            loadFile = open("Output/best.save", "r")
+            loadFile = open("Output/bestTree.save", "r")
             generation, best_score, neuron = load_best(loadFile, top_qtd)
             loadFile.close()
             input_system = [HumanMode(), Neural(neuron[0][1], 1), Neural(neuron[1][1], 2), Neural(neuron[2][1], 3)]
@@ -125,14 +210,14 @@ def run():
         ####
         generation = 0
         if Config.LOAD:
-            loadFile = open("Output/best.save", "r")
+            loadFile = open("Output/bestTree.save", "r")
             generation, best_score, player_result_list = load_best(loadFile, top_qtd)
             loadFile.close()
         pool = multiprocessing.Pool(Config.CPU_CORE)
         player_result_list = []
         while(run):
             #print("Creating generation {0}".format(generation))
-            neural_list = create_run_global(player_result_list, top_qtd, pool)
+            neural_list = create_run_global(player_result_list, top_qtd, pool, 1)
 
             input_multicore = []
             for neuron in neural_list:
@@ -148,7 +233,7 @@ def run():
                 best_score = player_result_list[0][0]
             
             print("Gen {0} COMPLETE - BEST SCORE TOTAL = {2} BEST SCORE GEN {0} = {3} - {1} ERROR".format(generation, error, best_score, player_result_list[0][0]))
-            bestFile = open("Output/best.save", "w")
+            bestFile = open("Output/bestTree.save", "w")
             save_best(generation, best_score, player_result_list[0:top_qtd], bestFile)
             bestFile.close()
             logFile.write("Start generation {0}\n\n".format(generation))
@@ -157,10 +242,15 @@ def run():
             genInfo = "{0};{1};{2};{3};{4};{5}\n".format(generation, pygame.time.get_ticks()-timer, best_score, player_result_list[0][0], player_result_list[1][0], player_result_list[2][0])
             tableFile.write(genInfo)
             
+            if generation == 1000 or best_score >= 900:
+                run = False
+                break
+
             generation += 1
             
         logFile.close()
         tableFile.close()
+        exit()
 
 def save_best(generation, best_score, list, file):
     file.write(str(generation) + "\n")
@@ -249,20 +339,41 @@ def create_run(player_list, top_qtd):
             neural_final_list.append(neuron)
         return neural_final_list
 
-def create_run_global(player_list, top_qtd, pool):
+def create_run_global(player_list, top_qtd, pool, multiplier):
     #print("Input list size = " + str(len(player_list)))
+    #print("Top qtd size = " + str(top_qtd))
     neural_list = []
     input_multicore = []
     if player_list == []:
-        for id in range(Config.ARENA_QTD):
+        for id in range(multiplier * Config.ARENA_QTD):
             input_multicore.append([id])
     else:
-        top_list = []
+        listTotal = []
+        listId = []
+        weightList = []
+        size = len(player_list)
+        for id in range(size):
+            listTotal.append(player_list[id][1])
+            listId.append(id)
+            weightList.append(max(player_list[id][0],0))
+
+        sumT = sum(weightList)
+        for id in range(len(weightList)):
+            weightList[id] = weightList[id] / sumT
+
+        #print (str(sum(weightList)))
+
+        randomWeightList = np.random.choice(listId, size = top_qtd, replace = False, p = weightList)
+        #print("total = " + str(size) + " selected of " + str(top_qtd) + " = " + str(len(randomWeightList)) + "  weigh0 = " + str(weightList[0]) + "  weigh1 = " + str(weightList[1]) + "  weigh2 = " + str(weightList[2]))
+        toplist = []
+
         for id in range(top_qtd):
-            top_list.append(player_list[id][1])
+            toplist.append(listTotal[randomWeightList[id]])
+
         for id in range(top_qtd-1):
-            input_multicore.append([top_list, id])
-        #print("Top list size = " + str(len(top_list)))
+            #input_multicore.append([top_list, id])
+            input_multicore.append([toplist, id])
+        #print("Top list size = " + str(len(toplist)))
     if player_list == []:
         neural_list = pool.map(create_random_weights, input_multicore)
     else:
@@ -274,7 +385,9 @@ def create_run_global(player_list, top_qtd, pool):
                 neural_list.append(neuron)
         #print("List neural result added size = " + str(len(neural_list)))
         for id in range(top_qtd):
-            neural_list.append(top_list[id])
+            neural_list.append(player_list[id][1])
+        #for id in range(top_qtd):
+        #    neural_list.append(top_list[id])
     #none_values = 0
     #id = 0
     #for neuron in neural_list:
@@ -289,7 +402,7 @@ def create_run_global(player_list, top_qtd, pool):
     aux = 0
     for k in range(Config.ARENA_QTD):
         neuron = []
-        for j in range(1):
+        for j in range(multiplier):
             neuron.append(neural_list[aux])
             aux += 1
         neural_final_list.append(neuron)
@@ -308,6 +421,6 @@ def create_run_thread(input):
         return []
     new_list = []
     for top in top_list[id+1:len(top_list)]:
-        new_list += crossover(top_list[id], top, 0.05, Config.WEIGHTS_RANGE)
+        new_list += crossover(top_list[id], top, Config.MutationRate, Config.WEIGHTS_RANGE)
     #print ("New List size = " + str(len(new_list)) + " from id = " + str(id))
     return new_list

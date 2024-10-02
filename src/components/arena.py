@@ -163,8 +163,8 @@ class Arena:
             self.END = True
         if self.END == True:
             for p in self.PLAYERS:
-                p.SCORE += self.arena_time()
-        if not(self.END_PHASE) and pygame.time.get_ticks() - self.time >= 120000:
+                p.SCORE -= self.arena_time()
+        if not(self.END_PHASE) and pygame.time.get_ticks() - self.time >= 20000:#120000:
             self.END_PHASE = True
             self.END_TIMER = pygame.time.get_ticks()
         if self.END_PHASE and self.END_COUNTER <= self.HEIGHT - 1:

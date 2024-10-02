@@ -18,6 +18,13 @@ def update_game_display():
 
 
 def main():
+    waitToStart = True
+
+    while waitToStart:
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_KP_ENTER or event.key == pygame.K_RETURN:  
+                    waitToStart = False
     while True:
         if GlobalState.GAME_STATE == GameStatus.MAIN_MENU:
             main_menu_screen()
@@ -32,6 +39,6 @@ def main():
 
 
 if __name__ == "__main__":
-    #GlobalState.GAME_STATE = GameStatus.GAME_PLAY
-    GlobalState.GAME_STATE = GameStatus.GAME_SCORE
+    GlobalState.GAME_STATE = GameStatus.GAME_PLAY
+    #GlobalState.GAME_STATE = GameStatus.GAME_SCORE
     main()
